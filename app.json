@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "sales-arena-mobile",
+    "name": "Sales Arena",
     "slug": "sales-arena-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -34,7 +34,8 @@
             "imageWidth": 76
           }
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true,
