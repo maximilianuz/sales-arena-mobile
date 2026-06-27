@@ -19,6 +19,7 @@ import SurpriseEventButton from '../../src/components/SurpriseEventButton';
 import VotingPanel from '../../src/components/VotingPanel';
 import DebriefPanel from '../../src/components/DebriefPanel';
 import SettingsModal from '../../src/components/SettingsModal';
+import ScriptPanel from '../../src/components/ScriptPanel';
 
 export default function RoomScreen() {
   const { t, i18n } = useTranslation();
@@ -152,6 +153,10 @@ export default function RoomScreen() {
 
           {(isFacilitator || isCloser) && (
             <ProductPanel productPresentation={roomData.productPresentation} />
+          )}
+
+          {isCloser && currentScenario?.script && (
+            <ScriptPanel script={currentScenario.script} />
           )}
 
           {(isFacilitator || isLead) && (
