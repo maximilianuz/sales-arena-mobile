@@ -54,35 +54,40 @@ export default function BuyerPersonaPanel({ currentScenario, setCurrentScenario,
     if (!currentScenario) {
       return <Text style={{color: colors.textMuted}}>Esperando configuración de escenario...</Text>;
     }
+
+    const name = currentScenario.demographics?.name || currentScenario.name || 'Desconocido';
+    const roleStr = currentScenario.demographics?.role || currentScenario.role || 'Rol no definido';
+    const companyStr = currentScenario.demographics?.industry || currentScenario.company || 'Industria no definida';
+    const problemStr = currentScenario.currentSituation?.problem || currentScenario.context || 'Problema no definido';
+    const objectionStr = currentScenario.visibleObjection || (currentScenario.painPoints ? currentScenario.painPoints[0] : 'No definida');
+
     return (
       <View>
         <View style={styles.header}>
           <User size={20} color={colors.primary} />
-          <Text style={styles.title}>{currentScenario.name}</Text>
-          <Text style={styles.badge}>{currentScenario.role}</Text>
+          <Text style={styles.title}>{name}</Text>
+          <Text style={styles.badge}>{roleStr}</Text>
         </View>
         
         <View style={styles.companyRow}>
           <Briefcase size={16} color={colors.textMuted} />
-          <Text style={styles.companyText}>{currentScenario.company}</Text>
+          <Text style={styles.companyText}>{companyStr}</Text>
         </View>
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Target size={16} color={colors.accent} />
-            <Text style={styles.sectionTitle}>Contexto y Objetivos</Text>
+            <Text style={styles.sectionTitle}>Problema Actual</Text>
           </View>
-          <Text style={styles.text}>{currentScenario.context}</Text>
+          <Text style={styles.text}>{problemStr}</Text>
         </View>
         
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <AlertTriangle size={16} color={colors.secondary} />
-            <Text style={styles.sectionTitle}>Puntos de Dolor (Pain Points)</Text>
+            <Text style={styles.sectionTitle}>Objeción Principal</Text>
           </View>
-          {currentScenario.painPoints?.map((pp, idx) => (
-            <Text key={idx} style={styles.listItem}>• {pp}</Text>
-          ))}
+          <Text style={[styles.text, { fontStyle: 'italic', color: colors.secondary }]}>"{objectionStr}"</Text>
         </View>
       </View>
     );
