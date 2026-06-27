@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descarga Sales Arena Mobile</title>
+    <meta name="description" content="Descarga la aplicación Sales Arena Mobile para Android y mejora tus habilidades de venta.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-elements">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <main class="container">
+        <header class="header">
+            <div class="logo-container">
+                <div class="logo-icon">SA</div>
+                <h1>Sales Arena</h1>
+            </div>
+            <span class="badge">Mobile App</span>
+        </header>
+
+        <section class="content-wrapper">
+            <div class="text-content">
+                <h2 class="hero-title">Domina el arte<br>de las <span class="highlight">ventas</span>.</h2>
+                <p class="hero-subtitle">Descarga nuestra app móvil exclusiva para Android y accede a simulaciones de ventas, debriefs con IA, y mucho más directamente desde tu bolsillo.</p>
+                
+                <div class="action-container">
+                    <a href="#" id="download-btn" class="primary-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Descargar APK (Android)
+                    </a>
+                    <p class="helper-text">Versión 1.0.0 | Requiere Android 8.0+</p>
+                </div>
+            </div>
+
+            <div class="qr-content">
+                <div class="glass-card">
+                    <h3>¿Estás en tu PC?</h3>
+                    <p>Escanea este código con la cámara de tu móvil para descargar la app directamente.</p>
+                    <div class="qr-wrapper">
+                        <!-- El código QR se generará dinámicamente o se insertará cuando el link esté listo -->
+                        <img id="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://expo.dev/artifacts/eas/placeholder" alt="Código QR de Descarga" />
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <footer class="footer">
+            <p>&copy; 2026 Sales Arena. Todos los derechos reservados.</p>
+        </footer>
+    </main>
+</body>
+</html>
