@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Arena Mobile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.4);
+            --secondary: #ec4899;
+            --bg-dark: #09090b;
+            --bg-card: rgba(24, 24, 27, 0.65);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-border-highlight: rgba(255, 255, 255, 0.15);
+            --glass-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.12), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.12), transparent 25%),
+                radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.08), transparent 25%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            position: relative;
+        }
+
+        #particles-js {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-top: 1px solid var(--glass-border-highlight);
+            border-radius: 1.25rem;
+            box-shadow: var(--glass-shadow);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: modalSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4);
+            width: 80px;
+            height: 80px;
+        }
+
+        h2.title {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #ffffff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 2.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            box-shadow: 0 4px 15px -3px var(--primary-glow);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            width: 100%;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px -5px var(--primary-glow);
+        }
+
+        .qr-section {
+            text-align: center;
+            background: rgba(255,255,255,0.03);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid var(--glass-border);
+            width: 100%;
+        }
+
+        .qr-wrapper {
+            background: white;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .qr-wrapper img {
+            display: block;
+        }
+
+        .qr-text {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        @keyframes modalSlideUp {
+            from { opacity: 0; transform: translateY(30px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+
+    <div class="glass-panel">
+        <div class="logo-container">
+            <!-- SVG of a Chess Knight similar to Lucide React -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 6.5C11 8 9.5 9 8 9s-3-1-3-2.5 1.5-2.5 3-2.5 3 1 3 2.5Z"></path>
+                <path d="M12 21h8"></path>
+                <path d="M14.5 21v-4"></path>
+                <path d="M21 21v-4"></path>
+                <path d="M8 9h4l2.5 4-1.5 2 1.5 6"></path>
+                <path d="M8 9H4v2h3l-3 4h4l1 6"></path>
+            </svg>
+        </div>
+        
+        <h2 class="title">Sales Arena</h2>
+        <p class="subtitle">Mobile App</p>
+
+        <a href="https://expo.dev/accounts/maximilianoclosers-organization/projects/sales-arena/builds/9280d1d5-e75d-47f5-9e09-ad598e0a5269" target="_blank" class="btn-primary">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Descargar APK
+        </a>
+
+        <div class="qr-section">
+            <div class="qr-wrapper">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://expo.dev/accounts/maximilianoclosers-organization/projects/sales-arena/builds/9280d1d5-e75d-47f5-9e09-ad598e0a5269" alt="QR Code">
+            </div>
+            <p class="qr-text">Escanea este código con tu celular<br>para descargar la app e instalarla.</p>
+        </div>
+    </div>
+
+    <script>
+        particlesJS("particles-js", {
+            "particles": {
+                "number": { "value": 60, "density": { "enable": true, "value_area": 800 } },
+                "color": { "value": ["#6366f1", "#ec4899", "#10b981"] },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.4 },
+                "size": { "value": 3, "random": true },
+                "line_linked": { "enable": true, "distance": 150, "color": "#6366f1", "opacity": 0.2, "width": 1.5 },
+                "move": { "enable": true, "speed": 1.2, "direction": "top", "random": true, "straight": false, "out_mode": "out", "bounce": false }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": {
+                    "onhover": { "enable": true, "mode": "grab" },
+                    "onclick": { "enable": true, "mode": "push" },
+                    "resize": true
+                },
+                "modes": {
+                    "grab": { "distance": 180, "line_linked": { "opacity": 0.6 } },
+                    "push": { "particles_nb": 3 }
+                }
+            },
+            "retina_detect": true
+        });
+    </script>
+</body>
+</html>
