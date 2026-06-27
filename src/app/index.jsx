@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Shuffle, Copy, BookOpen } from 'lucide-react-native';
 import { colors, globalStyles } from '../theme/GlobalStyles';
 import GlassPanel from '../components/GlassPanel';
-import * as Clipboard from 'expo-clipboard'; // We might not have this installed, let's just use standard React Native tools if not. Wait, Expo Clipboard is a separate package. Let's install it later or just simulate it for now.
+
 
 export default function LobbyScreen() {
   const { t, i18n } = useTranslation();
