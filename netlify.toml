@@ -1,0 +1,3 @@
+[build]
+  command = "echo 'Serving static landing page'"
+  publish = "."
