@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+    <defs>
+        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#6366f1" />
+            <stop offset="100%" stop-color="#ec4899" />
+        </linearGradient>
+    </defs>
+    <rect width="1024" height="1024" rx="205" ry="205" fill="url(#grad)" />
+    <!-- Center the 24x24 viewBox in the 1024x1024 canvas -->
+    <!-- 1024 / 24 = 42.6666 -->
+    <!-- Let's scale it so it occupies about 60% of the canvas -> 614.4px -->
+    <!-- Scale factor: 614.4 / 24 = 25.6 -->
+    <!-- Translate to center: (1024 - 614.4) / 2 = 204.8 -->
+    <!-- Stroke width: 1.5 in original = 1.5 -->
+    <g transform="translate(204.8, 204.8) scale(25.6)">
+        <path d="M5 20a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M16.5 18c1-2 2.5-5 2.5-9a7 7 0 0 0-7-7H6.635a1 1 0 0 0-.768 1.64L7 5l-2.32 5.802a2 2 0 0 0 .95 2.526l2.87 1.456" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="m15 5 1.425-1.425" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="m17 8 1.53-1.53" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M9.713 12.185 7 18" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+    </g>
+</svg>
