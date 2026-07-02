@@ -4,6 +4,7 @@ import { User, Briefcase, Target, AlertTriangle, Sparkles } from 'lucide-react-n
 import { globalStyles, colors } from '../theme/GlobalStyles';
 import GlassPanel from './GlassPanel';
 import { generateAIScenario } from '../utils/universalAiClient';
+import { randomIndustryValue } from '../utils/industries';
 
 // Fila etiqueta + valor. No renderiza nada si el valor está vacío.
 function Field({ label, value }) {
@@ -35,12 +36,11 @@ export default function BuyerPersonaPanel({ currentScenario, setCurrentScenario,
     try {
       // Ya no se pide API key: la generación va por el proxy del servidor con la
       // sesión del usuario (misma cuota/plan que la web).
-      const themes = ["B2B Software/SaaS", "B2C Inmobiliario", "B2C Seguros", "E-commerce"];
       const levels = ["Intermedio", "Avanzado"];
       const temps = ["Frío", "Templado"];
 
       const scenarioConfig = {
-        theme: themes[Math.floor(Math.random() * themes.length)],
+        theme: randomIndustryValue(),
         level: levels[Math.floor(Math.random() * levels.length)],
         leadTemperature: temps[Math.floor(Math.random() * temps.length)],
         targetObjection: "Aleatoria (Sorpréndeme)"
