@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { Zap } from 'lucide-react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { globalStyles, colors } from '../theme/GlobalStyles';
 import { generateSurpriseEvent } from '../utils/universalAiClient';
 
@@ -13,23 +12,8 @@ export default function SurpriseEventButton({ currentScenario, triggerSurpriseEv
     setIsGenerating(true);
 
     try {
-      const vals = await AsyncStorage.multiGet(['api_provider', 'api_key', 'api_url', 'api_model']);
-      const dict = Object.fromEntries(vals);
-
-      const aiConfig = {
-        provider: dict.api_provider || 'openai',
-        apiKey: dict.api_key || '',
-        apiUrl: dict.api_url || '',
-        apiModel: dict.api_model || ''
-      };
-
-      if (!aiConfig.apiKey && aiConfig.provider !== 'custom') {
-        Alert.alert('Falta API Key', 'Por favor configura tu API Key en los ajustes.');
-        setIsGenerating(false);
-        return;
-      }
-
-      const eventText = await generateSurpriseEvent(aiConfig, currentScenario, 'es');
+      // Va por el proxy del servidor (sin API key del usuario).
+      const eventText = await generateSurpriseEvent(currentScenario, 'es');
       triggerSurpriseEvent(eventText);
     } catch (error) {
       Alert.alert('Error', error.message);

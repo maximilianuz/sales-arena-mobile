@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, StyleSheet, KeyboardAvoidingView, Platform, Modal, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, StyleSheet, KeyboardAvoidingView, Platform, Modal, TouchableOpacity, Linking } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRoomSync } from '../../hooks/useRoomSync';
 import { getDefaultStages } from '../../utils/defaultStages';
 import { globalStyles, colors } from '../../theme/GlobalStyles';
+import { useSubscriptionContext } from '../../contexts/SubscriptionContext';
 
 import Header from '../../components/Header';
 import GlassPanel from '../../components/GlassPanel';
@@ -19,13 +20,21 @@ import SurpriseEventButton from '../../components/SurpriseEventButton';
 import VotingPanel from '../../components/VotingPanel';
 import DebriefPanel from '../../components/DebriefPanel';
 import SettingsModal from '../../components/SettingsModal';
+import UpgradeModal from '../../components/UpgradeModal';
+import LeadCheckoutPanel from '../../components/LeadCheckoutPanel';
+import CheckoutResultBanner from '../../components/CheckoutResultBanner';
+import CloserCommandPanel from '../../components/CloserCommandPanel';
+
+const WEB_APP_URL = 'https://sales-arena.netlify.app';
 
 export default function RoomScreen() {
   const { t, i18n } = useTranslation();
   const { id: roomId } = useLocalSearchParams();
   const router = useRouter();
   
-  const { roomData, loading, updateScenario, updateTimer, updateActiveStage, updateQuestions, updateDebriefNotes, triggerSurpriseEvent, updateProductPresentation } = useRoomSync(roomId);
+  const { roomData, loading, updateScenario, updateTimer, updateActiveStage, updateQuestions, updateDebriefNotes, triggerSurpriseEvent, updateProductPresentation, enableCheckout, updateCheckoutPhase } = useRoomSync(roomId);
+  const { isFree } = useSubscriptionContext() || { isFree: false };
+  const [upgradeModal, setUpgradeModal] = useState(null);
 
   const [sessionTitle, setSessionTitle] = useState(t('lobby.title', 'Simulación de Ventas'));
   const [showSettings, setShowSettings] = useState(false);
@@ -98,6 +107,26 @@ export default function RoomScreen() {
   const isLead = role === 'Lead';
   const isObserver = role === 'Observador';
 
+  // Cambio de etapa: además de mover el índice, reseteamos el cronómetro al
+  // tiempo configurado de esa etapa (igual que la web).
+  const handleStageChange = (idx) => {
+    updateActiveStage(idx);
+    const est = parseInt(stages[idx]?.estimatedTime, 10) || 5;
+    updateTimer({ isRunning: false, endTimestamp: null, timeLeft: est * 60 });
+  };
+
+  // Info privada = la causa REAL detrás de la objeción (para Trainer y para
+  // quien actúa de Lead). El escenario no tiene "hiddenContext"; lo armamos con
+  // la objeción oculta + la guía de roleplay.
+  const g = currentScenario?.roleplayGuide || {};
+  const privateInfo = currentScenario ? [
+    currentScenario.hiddenObjection && `OBJECIÓN OCULTA (la causa real):\n${currentScenario.hiddenObjection}`,
+    g.moneyBelief && `Creencia limitante sobre el dinero:\n${g.moneyBelief}`,
+    g.competingGoal && `Conflicto interno:\n${g.competingGoal}`,
+    g.vendorFatigue && `Por qué desconfía de vendedores:\n${g.vendorFatigue}`,
+    g.actorAdvice && `Cómo actuar a este Lead:\n${g.actorAdvice}`,
+  ].filter(Boolean).join('\n\n') : '';
+
   return (
     <KeyboardAvoidingView style={globalStyles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -114,10 +143,27 @@ export default function RoomScreen() {
         />
 
         <View style={styles.stack}>
+          {roomData.checkout?.result && <CheckoutResultBanner checkout={roomData.checkout} />}
+
           {!isLead && !isObserver && (
-            <PipelinePanel 
-              activeStageIndex={activeStageIndex || 0} 
-              stages={stages} 
+            <PipelinePanel
+              activeStageIndex={activeStageIndex || 0}
+              setActiveStageIndex={isFacilitator ? handleStageChange : undefined}
+              stages={stages}
+              pipelineQuestions={currentScenario?.pipelineQuestions}
+              isFree={isFree}
+              onUpgradeStage={() => setUpgradeModal({ feature: 'Cualificación y Cierre', requiredPlan: 'closer' })}
+              showDetail={!isCloser}
+            />
+          )}
+
+          {/* Centro de comando del Closer: misión + coach de etapa + preguntas + intel */}
+          {isCloser && (
+            <CloserCommandPanel
+              currentScenario={currentScenario}
+              activeStage={stages[activeStageIndex || 0]}
+              pipelineQuestions={currentScenario?.pipelineQuestions}
+              productPresentation={roomData.productPresentation}
             />
           )}
 
@@ -134,6 +180,13 @@ export default function RoomScreen() {
             />
           )}
 
+          {isLead && currentScenario && (
+            <LeadCheckoutPanel
+              checkout={roomData.checkout}
+              updateCheckoutPhase={updateCheckoutPhase}
+            />
+          )}
+
           {isObserver && stages[activeStageIndex || 0] && (
             <View style={styles.observerHighlight}>
               <Text style={styles.highlightTitle}>Camino del Closer (Etapa {activeStageIndex + 1})</Text>
@@ -143,15 +196,40 @@ export default function RoomScreen() {
           )}
 
           {isFacilitator && (
-            <RolesPanel participants={participants} />
+            <RolesPanel participants={participants} setParticipants={setParticipants} />
           )}
 
           {!isLead && (
-            <Timer timerState={timerState} activeStageIndex={activeStageIndex || 0} stages={stages} />
+            <Timer
+              timerState={timerState}
+              activeStageIndex={activeStageIndex || 0}
+              stages={stages}
+              updateTimer={isFacilitator ? updateTimer : undefined}
+              maxMinutes={isFree ? 30 : null}
+            />
           )}
 
-          {(isFacilitator || isCloser) && (
+          {/* El Closer ya tiene el producto (colapsable) dentro de su centro de comando */}
+          {isFacilitator && (
             <ProductPanel productPresentation={roomData.productPresentation} />
+          )}
+
+          {isFacilitator && currentScenario && (
+            <GlassPanel>
+              <Text style={styles.checkoutTitle}>Fase de Cierre (checkout del Lead)</Text>
+              {roomData.checkout?.enabled ? (
+                <Text style={styles.checkoutStatus}>
+                  ✅ Habilitada — el Lead ya puede iniciar el checkout simulado.
+                </Text>
+              ) : (
+                <TouchableOpacity
+                  style={[globalStyles.btn, globalStyles.btnPrimary]}
+                  onPress={enableCheckout}
+                >
+                  <Text style={globalStyles.btnText}>Habilitar fase de Cierre</Text>
+                </TouchableOpacity>
+              )}
+            </GlassPanel>
           )}
 
           {(isFacilitator || isLead) && (
@@ -198,10 +276,18 @@ export default function RoomScreen() {
         onClose={() => setShowSettings(false)} 
       />
 
-      <PrivateInfoModal 
-        visible={showPrivateInfo} 
-        onClose={() => setShowPrivateInfo(false)} 
-        info={currentScenario?.hiddenContext} 
+      <PrivateInfoModal
+        visible={showPrivateInfo}
+        onClose={() => setShowPrivateInfo(false)}
+        info={privateInfo}
+      />
+
+      <UpgradeModal
+        visible={!!upgradeModal}
+        feature={upgradeModal?.feature}
+        requiredPlan={upgradeModal?.requiredPlan}
+        onClose={() => setUpgradeModal(null)}
+        onUpgrade={() => { Linking.openURL(WEB_APP_URL); setUpgradeModal(null); }}
       />
 
       <Modal visible={showSurpriseEvent} animationType="fade" transparent={true}>
@@ -266,5 +352,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
     justifyContent: 'center',
-  }
+  },
+  checkoutTitle: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginBottom: 12,
+  },
+  checkoutStatus: {
+    color: colors.success,
+    fontSize: 14,
+    lineHeight: 20,
+  },
 });

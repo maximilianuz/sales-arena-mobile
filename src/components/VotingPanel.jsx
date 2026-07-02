@@ -4,6 +4,23 @@ import { BarChart2, RotateCcw, Plus } from 'lucide-react-native';
 import { globalStyles, colors } from '../theme/GlobalStyles';
 import GlassPanel from './GlassPanel';
 
+// Las salas creadas desde la web guardan colores como CSS vars ("var(--success)")
+// que React Native no entiende. Los resolvemos a hex acá para que las barras se
+// vean bien en móvil sin importar quién creó la sala.
+const CSS_VAR_HEX = {
+  'var(--success)': colors.success,
+  'var(--danger)': colors.danger,
+  'var(--secondary)': colors.secondary,
+  'var(--primary)': colors.primary,
+  'var(--accent)': colors.accent,
+};
+const resolveColor = (c) => {
+  if (!c) return colors.primary;
+  if (CSS_VAR_HEX[c]) return CSS_VAR_HEX[c];
+  if (typeof c === 'string' && c.startsWith('var(')) return colors.primary;
+  return c;
+};
+
 export default function VotingPanel({ isObserver, isFacilitator, questions = [], updateQuestions, activeStage }) {
   const INITIAL_QUESTIONS = [
     { id: 1, question: "¿Encontró la objeción real?", options: [{ text: "Sí", votes: 0, color: colors.success }, { text: "No", votes: 0, color: colors.danger }] },
@@ -70,7 +87,7 @@ export default function VotingPanel({ isObserver, isFacilitator, questions = [],
                       )}
                       
                       <View style={styles.barContainer}>
-                        <View style={[styles.barFill, { width: `${percentage}%`, backgroundColor: opt.color || colors.primary }]} />
+                        <View style={[styles.barFill, { width: `${percentage}%`, backgroundColor: resolveColor(opt.color) }]} />
                         <View style={styles.barLabels}>
                           <Text style={styles.barText}>{opt.text}</Text>
                           <Text style={styles.barText}>{opt.votes || 0} ({percentage}%)</Text>

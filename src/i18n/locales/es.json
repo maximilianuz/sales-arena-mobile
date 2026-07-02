@@ -9,7 +9,7 @@
     "whoWillYouPlay": "¿Quién vas a jugar hoy?",
     "idCopied": "ID de sala copiado al portapapeles",
     "roles": {
-      "Facilitador": "Facilitador",
+      "Facilitador": "Trainer",
       "FacilitadorDesc": "El que controla la IA y las etapas",
       "Closer": "Closer",
       "CloserDesc": "El que vende",
@@ -44,7 +44,7 @@
     },
     "visibleObjection": "Objeción Visible (Lo que dirá)",
     "hiddenObjectionNote": "* La objeción oculta está protegida en el panel central (Información del cliente).",
-    "waiting": "Esperando a que el Facilitador genere el escenario con IA...",
+    "waiting": "Esperando a que el Trainer genere el escenario con IA...",
     "generating": "Generando escenario con IA..."
   },
   "roles": {

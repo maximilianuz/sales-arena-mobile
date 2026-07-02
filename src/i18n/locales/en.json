@@ -9,7 +9,7 @@
     "whoWillYouPlay": "Who will you play today?",
     "idCopied": "Room ID copied to clipboard",
     "roles": {
-      "Facilitador": "Facilitator",
+      "Facilitador": "Trainer",
       "FacilitadorDesc": "Controls the AI and simulation stages",
       "Closer": "Closer",
       "CloserDesc": "The salesperson",
@@ -44,7 +44,7 @@
     },
     "visibleObjection": "Visible Objection (What they will say)",
     "hiddenObjectionNote": "* The hidden objection is protected in the center panel (Client Info).",
-    "waiting": "Waiting for the Facilitator to generate the AI scenario...",
+    "waiting": "Waiting for the Trainer to generate the AI scenario...",
     "generating": "Generating AI scenario..."
   },
   "roles": {

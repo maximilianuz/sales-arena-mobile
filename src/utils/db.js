@@ -1,5 +1,8 @@
+import { Platform } from 'react-native';
 import { initializeApp } from 'firebase/app';
 import { getDatabase } from 'firebase/database';
+import { getAuth } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDi9uc_gDsi5krnR44YaZiFWcz9fJYeBPA",
@@ -11,8 +14,32 @@ const firebaseConfig = {
   measurementId: "G-5T2XGLLBEB"
 };
 
-// Initialize Firebase
+// Mismo proyecto Firebase que la web (sales-arena-94086) → web y móvil comparten
+// salas, usuarios y suscripciones. NO cambiar sin coordinar ambos repos.
 const app = initializeApp(firebaseConfig);
 
-// Initialize Realtime Database
 export const db = getDatabase(app);
+
+// Auth con persistencia según plataforma.
+// - Nativo: hay que pasar getReactNativePersistence(AsyncStorage) o la sesión NO
+//   sobrevive al cerrar la app (Firebase cae a persistencia en memoria).
+// - Web (Expo web): getAuth usa la persistencia de navegador por defecto.
+// En firebase v12 `getReactNativePersistence` existe en runtime en el bundle RN
+// (solo falta en las typings). Lo tomamos con require dentro de la rama nativa
+// para que el build web no intente resolver un export que solo vive en nativo.
+let authInstance;
+if (Platform.OS === 'web') {
+  authInstance = getAuth(app);
+} else {
+  const { initializeAuth, getReactNativePersistence } = require('firebase/auth');
+  try {
+    authInstance = initializeAuth(app, {
+      persistence: getReactNativePersistence(AsyncStorage),
+    });
+  } catch {
+    // Ya inicializado (p. ej. por Fast Refresh en desarrollo).
+    authInstance = getAuth(app);
+  }
+}
+
+export const auth = authInstance;

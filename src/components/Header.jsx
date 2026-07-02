@@ -33,7 +33,7 @@ export default function Header({ title, roomId, role, onTitleChange, onOpenSetti
         {role && (
           <View style={styles.badge}>
             <User size={14} color={colors.textMuted} />
-            <Text style={styles.badgeText}>{role}</Text>
+            <Text style={styles.badgeText}>{t('lobby.roles.' + role, role)}</Text>
           </View>
         )}
         {roomId && (
