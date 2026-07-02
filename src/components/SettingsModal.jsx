@@ -5,11 +5,17 @@ import { X, Save } from 'lucide-react-native';
 import { globalStyles, colors } from '../theme/GlobalStyles';
 import GlassPanel from './GlassPanel';
 
-export default function SettingsModal({ visible, onClose, onSave }) {
+export default function SettingsModal({ visible, onClose, onSave, roomConfig, onSaveConfig }) {
   const [provider, setProvider] = useState('openai');
   const [apiKey, setApiKey] = useState('');
   const [apiUrl, setApiUrl] = useState('');
   const [apiModel, setApiModel] = useState('');
+
+  // Producto real + comisión (config de la sala).
+  const [commissionPct, setCommissionPct] = useState('10');
+  const [prodName, setProdName] = useState('');
+  const [prodDesc, setProdDesc] = useState('');
+  const [prodPrice, setProdPrice] = useState('');
 
   useEffect(() => {
     if (visible) {
@@ -20,8 +26,14 @@ export default function SettingsModal({ visible, onClose, onSave }) {
         setApiUrl(dict.api_url || '');
         setApiModel(dict.api_model || '');
       });
+      const rc = roomConfig || {};
+      const rp = rc.realProduct || {};
+      setCommissionPct(String(rc.commissionPct ?? 10));
+      setProdName(rp.name || '');
+      setProdDesc(rp.description || '');
+      setProdPrice(rp.price ? String(rp.price) : '');
     }
-  }, [visible]);
+  }, [visible, roomConfig]);
 
   const handleProviderSelect = (p) => {
     setProvider(p);
@@ -54,6 +66,14 @@ export default function SettingsModal({ visible, onClose, onSave }) {
     ]);
 
     if (onSave) onSave({ provider, apiKey, apiUrl, apiModel });
+
+    if (onSaveConfig) {
+      const price = parseInt(prodPrice, 10);
+      const realProduct = prodName.trim()
+        ? { name: prodName.trim(), description: prodDesc.trim(), price: price > 0 ? price : 1500 }
+        : null;
+      onSaveConfig({ commissionPct: Number(commissionPct) || 0, realProduct });
+    }
     onClose();
   };
 
@@ -111,6 +131,48 @@ export default function SettingsModal({ visible, onClose, onSave }) {
                 onChangeText={setApiUrl}
                 placeholder="https://..."
                 placeholderTextColor={colors.textMuted}
+              />
+
+              <View style={{ height: 1, backgroundColor: colors.glassBorder, marginTop: 24, marginBottom: 4 }} />
+              <Text style={[styles.label, { color: colors.accent }]}>Comisión (% del precio)</Text>
+              <TextInput
+                style={styles.input}
+                value={commissionPct}
+                onChangeText={setCommissionPct}
+                placeholder="10"
+                placeholderTextColor={colors.textMuted}
+                keyboardType="number-pad"
+              />
+              <Text style={{ color: colors.textMuted, fontSize: 12, marginTop: 4 }}>
+                Lo que gana el closer al cerrar un trato (alimenta su cuenta de comisiones).
+              </Text>
+
+              <Text style={[styles.label, { color: colors.accent }]}>Tu producto REAL (opcional)</Text>
+              <Text style={{ color: colors.textMuted, fontSize: 12, marginBottom: 8 }}>
+                Si lo completás, los escenarios generan un lead prospecto de ESTE producto. Vacío = aleatorio.
+              </Text>
+              <TextInput
+                style={[styles.input, { marginBottom: 8 }]}
+                value={prodName}
+                onChangeText={setProdName}
+                placeholder="Nombre del producto / servicio"
+                placeholderTextColor={colors.textMuted}
+              />
+              <TextInput
+                style={[styles.input, { marginBottom: 8, minHeight: 70, textAlignVertical: 'top' }]}
+                value={prodDesc}
+                onChangeText={setProdDesc}
+                placeholder="Descripción corta (qué es, beneficios clave)"
+                placeholderTextColor={colors.textMuted}
+                multiline
+              />
+              <TextInput
+                style={styles.input}
+                value={prodPrice}
+                onChangeText={setProdPrice}
+                placeholder="Precio en USD (mín. 1500)"
+                placeholderTextColor={colors.textMuted}
+                keyboardType="number-pad"
               />
 
               <TouchableOpacity style={[globalStyles.btn, globalStyles.btnPrimary, {marginTop: 20}]} onPress={handleSave}>

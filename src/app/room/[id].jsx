@@ -33,7 +33,7 @@ export default function RoomScreen() {
   const { id: roomId } = useLocalSearchParams();
   const router = useRouter();
   
-  const { roomData, loading, updateScenario, updateTimer, updateActiveStage, updateQuestions, updateDebriefNotes, triggerSurpriseEvent, updateProductPresentation, enableCheckout, updateCheckoutPhase, updateRubric } = useRoomSync(roomId);
+  const { roomData, loading, updateScenario, updateTimer, updateActiveStage, updateQuestions, updateDebriefNotes, triggerSurpriseEvent, updateProductPresentation, enableCheckout, updateCheckoutPhase, updateRubric, updateConfig } = useRoomSync(roomId);
   const { isFree } = useSubscriptionContext() || { isFree: false };
   const [upgradeModal, setUpgradeModal] = useState(null);
 
@@ -170,7 +170,7 @@ export default function RoomScreen() {
 
           {/* Stacking panels vertically for mobile */}
           {(isFacilitator || isLead || isObserver) && (
-            <BuyerPersonaPanel 
+            <BuyerPersonaPanel
               currentScenario={currentScenario}
               setCurrentScenario={async (s) => {
                 await updateScenario(s);
@@ -178,6 +178,7 @@ export default function RoomScreen() {
               }}
               stages={stages}
               isFacilitator={isFacilitator}
+              roomConfig={roomData.config}
             />
           )}
 
@@ -280,9 +281,11 @@ export default function RoomScreen() {
         </View>
       </ScrollView>
 
-      <SettingsModal 
-        visible={showSettings} 
-        onClose={() => setShowSettings(false)} 
+      <SettingsModal
+        visible={showSettings}
+        onClose={() => setShowSettings(false)}
+        roomConfig={roomData.config}
+        onSaveConfig={updateConfig}
       />
 
       <PrivateInfoModal

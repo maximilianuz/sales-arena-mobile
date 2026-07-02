@@ -119,6 +119,8 @@ export async function generateAIScenario(config, stages = [], language = 'es') {
   const pv = personalityView(personality, language);
   const personalityHint = `${pv.name} — ${pv.essence}`;
 
+  const realProduct = config.realProduct && config.realProduct.name ? config.realProduct : null;
+
   const fullPrompt = getFullScenarioPrompt({
     level: config.level,
     theme: config.theme,
@@ -127,12 +129,20 @@ export async function generateAIScenario(config, stages = [], language = 'es') {
     specificObjectionFramework,
     activeStages,
     language,
-    personalityHint
+    personalityHint,
+    realProduct
   });
 
   // 2800 tokens de salida acomoda todos los campos sin acercarse al límite de Groq.
   const scenario = await makeProxyCall(fullPrompt, 2, 2800);
-  if (scenario && typeof scenario === 'object') scenario.personality = personality.id;
+  if (scenario && typeof scenario === 'object') {
+    scenario.personality = personality.id;
+    if (realProduct) {
+      scenario.productToSell = `${realProduct.name} — ${realProduct.description} (USD ${realProduct.price})`;
+      const p = parseInt(realProduct.price, 10);
+      if (p > 0) scenario.productPrice = p;
+    }
+  }
   return scenario;
 }
 

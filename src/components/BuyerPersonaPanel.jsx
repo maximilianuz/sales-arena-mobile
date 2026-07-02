@@ -26,7 +26,7 @@ function SectionTitle({ Icon, color, text }) {
   );
 }
 
-export default function BuyerPersonaPanel({ currentScenario, setCurrentScenario, stages, isFacilitator }) {
+export default function BuyerPersonaPanel({ currentScenario, setCurrentScenario, stages, isFacilitator, roomConfig }) {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleRandomizeAndGenerate = async () => {
@@ -43,7 +43,8 @@ export default function BuyerPersonaPanel({ currentScenario, setCurrentScenario,
         theme: randomIndustryValue(),
         level: levels[Math.floor(Math.random() * levels.length)],
         leadTemperature: temps[Math.floor(Math.random() * temps.length)],
-        targetObjection: "Aleatoria (Sorpréndeme)"
+        targetObjection: "Aleatoria (Sorpréndeme)",
+        realProduct: roomConfig?.realProduct || null
       };
 
       const scenario = await generateAIScenario(scenarioConfig, stages, 'es');
