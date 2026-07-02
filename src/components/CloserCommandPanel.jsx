@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Target, MessageSquare, ChevronDown, ChevronUp, Package, Zap, Ear, Brain, Volume2, AlertTriangle } from 'lucide-react-native';
+import { Target, MessageSquare, ChevronDown, ChevronUp, Package, Zap, Ear, Brain, Volume2, AlertTriangle, Fingerprint } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { colors } from '../theme/GlobalStyles';
 import GlassPanel from './GlassPanel';
 import { getStageCoaching } from '../utils/coachingKnowledge';
+import { getPersonality, personalityView } from '../utils/leadPersonalities';
 
 // Fila compacta del coach: icono + etiqueta + consejo. Espejo del CoachRow web.
 function CoachRow({ Icon, color, label, text }) {
@@ -36,6 +37,7 @@ export default function CloserCommandPanel({ currentScenario, activeStage, pipel
 
   const questions = pipelineQuestions && activeStage ? pipelineQuestions[activeStage.id] : [];
   const coaching = getStageCoaching(activeStage?.id, i18n.language);
+  const persona = currentScenario ? personalityView(getPersonality(currentScenario.personality), i18n.language) : null;
 
   if (!currentScenario || !activeStage) {
     return (
@@ -70,6 +72,23 @@ export default function CloserCommandPanel({ currentScenario, activeStage, pipel
           </View>
         ) : null}
       </View>
+
+      {/* Perfil de personalidad del lead + cómo venderle */}
+      {persona && (
+        <GlassPanel style={{ borderColor: `${persona.color}55`, gap: 6 }}>
+          <View style={styles.personaHeader}>
+            <Fingerprint size={15} color={persona.color} />
+            <Text style={[styles.personaTitle, { color: persona.color }]}>
+              {isEn ? 'Lead profile' : 'Perfil del lead'}: {persona.name}
+            </Text>
+          </View>
+          <Text style={styles.personaEssence}>{persona.essence}</Text>
+          <Text style={styles.personaLine}><Text style={{ color: colors.success, fontWeight: '700' }}>{isEn ? 'Connect: ' : 'Conectá: '}</Text>{persona.connect}</Text>
+          <Text style={styles.personaLine}><Text style={{ color: '#a5b4fc', fontWeight: '700' }}>{isEn ? 'Close: ' : 'Cerrá: '}</Text>{persona.close}</Text>
+          <Text style={styles.personaLine}><Text style={{ color: colors.danger, fontWeight: '700' }}>{isEn ? 'Avoid: ' : 'Evitá: '}</Text>{persona.avoid}</Text>
+          <Text style={styles.personaLine}><Text style={{ color: colors.accent, fontWeight: '700' }}>{isEn ? 'Tone: ' : 'Tono: '}</Text>{persona.tone}</Text>
+        </GlassPanel>
+      )}
 
       {/* Coach de etapa (curado, siempre disponible) */}
       {coaching && (
@@ -179,6 +198,10 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: 'rgba(16,185,129,0.2)',
   },
   winSignalText: { flex: 1, fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 18 },
+  personaHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
+  personaTitle: { fontSize: 11, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase', flexShrink: 1 },
+  personaEssence: { fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 19, marginBottom: 4 },
+  personaLine: { fontSize: 13, color: 'rgba(255,255,255,0.72)', lineHeight: 19 },
   coachRow: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
   coachLabel: { fontSize: 11, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 2 },
   coachText: { fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 19 },

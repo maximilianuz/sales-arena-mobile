@@ -2,6 +2,7 @@ import { OBJECTIONS_DICTIONARY } from './objectionsKnowledgeBase';
 import { getFullScenarioPrompt } from './prompts/fullScenarioPrompt';
 import { auth } from './db';
 import { logError } from './telemetry';
+import { randomPersonality, personalityView } from './leadPersonalities';
 
 // La app móvil NO trae su propio backend. Pega al MISMO proxy serverless de la
 // web de PC (que guarda la AI_API_KEY del servidor y controla la cuota por
@@ -113,6 +114,11 @@ export async function generateAIScenario(config, stages = [], language = 'es') {
     specificObjectionFramework = OBJECTIONS_DICTIONARY[selectedObjectionKey] || '';
   }
 
+  // Personalidad del lead (DISC): elegida acá y estampada en el escenario.
+  const personality = randomPersonality();
+  const pv = personalityView(personality, language);
+  const personalityHint = `${pv.name} — ${pv.essence}`;
+
   const fullPrompt = getFullScenarioPrompt({
     level: config.level,
     theme: config.theme,
@@ -120,11 +126,14 @@ export async function generateAIScenario(config, stages = [], language = 'es') {
     targetObjection: selectedObjectionKey,
     specificObjectionFramework,
     activeStages,
-    language
+    language,
+    personalityHint
   });
 
   // 2800 tokens de salida acomoda todos los campos sin acercarse al límite de Groq.
-  return makeProxyCall(fullPrompt, 2, 2800);
+  const scenario = await makeProxyCall(fullPrompt, 2, 2800);
+  if (scenario && typeof scenario === 'object') scenario.personality = personality.id;
+  return scenario;
 }
 
 export async function generateSurpriseEvent(scenario, language = 'es') {
