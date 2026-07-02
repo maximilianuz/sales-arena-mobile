@@ -23,7 +23,6 @@ export function logEvent(type, payload = {}) {
       type,
       ...payload,
       uid: (auth && auth.currentUser && auth.currentUser.uid) || null,
-      email: (auth && auth.currentUser && auth.currentUser.email) || null,
       platform: Platform.OS, // 'ios' | 'android' | 'web'
       ts: serverTimestamp(),
       at: now,
