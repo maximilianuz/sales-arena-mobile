@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Shuffle, Copy, BookOpen } from 'lucide-react-native';
 import { colors, globalStyles } from '../theme/GlobalStyles';
 import GlassPanel from '../components/GlassPanel';
+import LevelCard from '../components/LevelCard';
 
 
 export default function LobbyScreen() {
@@ -66,6 +67,8 @@ export default function LobbyScreen() {
             <Text style={styles.title}>Sales Arena</Text>
             <Text style={styles.subtitle}>AI-Powered Simulator</Text>
           </View>
+
+          <LevelCard />
 
           <View style={styles.formGroup}>
             <Text style={styles.label}>{t('lobby.yourName', 'Tu nombre')}</Text>
