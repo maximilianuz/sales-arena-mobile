@@ -26,6 +26,7 @@ import LeadCheckoutPanel from '../../components/LeadCheckoutPanel';
 import CheckoutResultBanner from '../../components/CheckoutResultBanner';
 import CloserCommandPanel from '../../components/CloserCommandPanel';
 import RubricPanel from '../../components/RubricPanel';
+import ListeningLogPanel from '../../components/ListeningLogPanel';
 
 const WEB_APP_URL = 'https://sales-arena.netlify.app';
 
@@ -34,7 +35,7 @@ export default function RoomScreen() {
   const { id: roomId } = useLocalSearchParams();
   const router = useRouter();
   
-  const { roomData, loading, updateScenario, updateTimer, updateActiveStage, updateQuestions, updateDebriefNotes, triggerSurpriseEvent, updateProductPresentation, enableCheckout, updateCheckoutPhase, updateRubric, updateConfig, registerCloser } = useRoomSync(roomId);
+  const { roomData, loading, updateScenario, updateTimer, updateActiveStage, updateQuestions, updateDebriefNotes, triggerSurpriseEvent, updateProductPresentation, enableCheckout, updateCheckoutPhase, updateRubric, updateConfig, registerCloser, updateListeningLog } = useRoomSync(roomId);
   const { isFree } = useSubscriptionContext() || { isFree: false };
   const [upgradeModal, setUpgradeModal] = useState(null);
 
@@ -274,6 +275,14 @@ export default function RoomScreen() {
               rubric={roomData.rubric}
               updateRubric={updateRubric}
               canScore={isObserver || isFacilitator}
+            />
+          )}
+
+          {(isFacilitator || isObserver) && currentScenario && (
+            <ListeningLogPanel
+              listeningLog={roomData.listeningLog}
+              updateListeningLog={updateListeningLog}
+              canEdit={isObserver}
             />
           )}
 
