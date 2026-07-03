@@ -112,6 +112,11 @@ export function useRoomSync(roomId) {
   // Registra quién actúa de Closer (para acreditarle la comisión al analizar).
   const registerCloser = (uid, name) => safeWrite({ closerUid: uid, closerName: name || null }, 'closer');
 
+  // Lead y Observadores también se registran: al analizar la sesión reciben
+  // puntos de soporte (menores que la comisión del Closer, pero cuentan).
+  const registerLead = (uid, name) => safeWrite({ leadUid: uid, leadName: name || null }, 'lead');
+  const registerObserver = (uid, name) => safeWrite({ [`observers/${uid}`]: name || 'Observador' }, 'observer');
+
   // Bitácora de escucha activa del Observador (detalles capturados de la llamada).
   const updateListeningLog = (log) => safeWrite({ listeningLog: log }, 'listeningLog');
 
@@ -132,6 +137,8 @@ export function useRoomSync(roomId) {
     updateRubric,
     updateConfig,
     registerCloser,
+    registerLead,
+    registerObserver,
     updateListeningLog
   };
 }

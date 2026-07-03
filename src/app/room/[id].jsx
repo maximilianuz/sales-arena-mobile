@@ -35,7 +35,7 @@ export default function RoomScreen() {
   const { id: roomId } = useLocalSearchParams();
   const router = useRouter();
   
-  const { roomData, loading, updateScenario, updateTimer, updateActiveStage, updateQuestions, updateDebriefNotes, triggerSurpriseEvent, updateProductPresentation, enableCheckout, updateCheckoutPhase, updateRubric, updateConfig, registerCloser, updateListeningLog } = useRoomSync(roomId);
+  const { roomData, loading, updateScenario, updateTimer, updateActiveStage, updateQuestions, updateDebriefNotes, triggerSurpriseEvent, updateProductPresentation, enableCheckout, updateCheckoutPhase, updateRubric, updateConfig, registerCloser, registerLead, registerObserver, updateListeningLog } = useRoomSync(roomId);
   const { isFree } = useSubscriptionContext() || { isFree: false };
   const [upgradeModal, setUpgradeModal] = useState(null);
 
@@ -54,6 +54,9 @@ export default function RoomScreen() {
 
   const [role, setRole] = useState('Observador');
   const [userName, setUserName] = useState('Anónimo');
+  // En nativo el rol llega async desde AsyncStorage: hasta que no cargue, NO
+  // registramos roles en la sala (evita anotar a un Closer como "Observador").
+  const [roleLoaded, setRoleLoaded] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -64,6 +67,7 @@ export default function RoomScreen() {
       }
       setUserName(savedName);
       setRole(await AsyncStorage.getItem('sales_arena_role') || 'Observador');
+      setRoleLoaded(true);
       
       const savedKey = await AsyncStorage.getItem('nvidia_api_key');
       if (savedKey) setApiKey(savedKey);
@@ -94,13 +98,20 @@ export default function RoomScreen() {
     }
   }, [roomData?.surpriseEvent, seenSurpriseEventId]);
 
-  // Registrar quién actúa de Closer para acreditarle a ÉL la comisión al analizar.
+  // Registrar quién ocupa cada rol: al Closer se le acredita la comisión al
+  // analizar; Lead y Observadores reciben puntos de soporte.
   useEffect(() => {
-    if (role === 'Closer' && roomData && auth.currentUser && roomData.closerUid !== auth.currentUser.uid) {
-      registerCloser(auth.currentUser.uid, userName);
+    if (!roleLoaded || !roomData || !auth.currentUser) return;
+    const uid = auth.currentUser.uid;
+    if (role === 'Closer' && roomData.closerUid !== uid) {
+      registerCloser(uid, userName);
+    } else if (role === 'Lead' && roomData.leadUid !== uid) {
+      registerLead(uid, userName);
+    } else if (role === 'Observador' && !(roomData.observers || {})[uid]) {
+      registerObserver(uid, userName);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [role, roomData, userName]);
+  }, [role, roleLoaded, roomData, userName]);
 
   if (loading || !roomData) {
     return (

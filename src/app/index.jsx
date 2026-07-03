@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert,
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Shuffle, Copy, BookOpen } from 'lucide-react-native';
+import { Shuffle, Copy, BookOpen, Trophy } from 'lucide-react-native';
 import { colors, globalStyles } from '../theme/GlobalStyles';
 import GlassPanel from '../components/GlassPanel';
 import LevelCard from '../components/LevelCard';
@@ -69,6 +69,14 @@ export default function LobbyScreen() {
           </View>
 
           <LevelCard />
+
+          {/* Ranking mundial + torneo mensual */}
+          <TouchableOpacity style={styles.leaderboardBtn} onPress={() => router.push('/leaderboard')}>
+            <Trophy size={16} color={colors.accent} />
+            <Text style={styles.leaderboardBtnText}>
+              {t('lobby.leaderboard', i18n.language?.startsWith('en') ? 'Leaderboard' : 'Tabla de posiciones')}
+            </Text>
+          </TouchableOpacity>
 
           <View style={styles.formGroup}>
             <Text style={styles.label}>{t('lobby.yourName', 'Tu nombre')}</Text>
@@ -217,5 +225,13 @@ const styles = StyleSheet.create({
   roleDesc: {
     fontSize: 12,
     color: colors.textMuted,
-  }
+  },
+  leaderboardBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    paddingVertical: 12, borderRadius: 12, marginBottom: 24,
+    backgroundColor: 'rgba(245,158,11,0.08)', borderWidth: 1, borderColor: 'rgba(245,158,11,0.35)',
+  },
+  leaderboardBtnText: {
+    color: colors.accent, fontWeight: '700', fontSize: 14,
+  },
 });
