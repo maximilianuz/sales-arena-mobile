@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRoomSync } from '../../hooks/useRoomSync';
+import { auth } from '../../utils/db';
 import { getDefaultStages } from '../../utils/defaultStages';
 import { globalStyles, colors } from '../../theme/GlobalStyles';
 import { useSubscriptionContext } from '../../contexts/SubscriptionContext';
@@ -33,7 +34,7 @@ export default function RoomScreen() {
   const { id: roomId } = useLocalSearchParams();
   const router = useRouter();
   
-  const { roomData, loading, updateScenario, updateTimer, updateActiveStage, updateQuestions, updateDebriefNotes, triggerSurpriseEvent, updateProductPresentation, enableCheckout, updateCheckoutPhase, updateRubric, updateConfig } = useRoomSync(roomId);
+  const { roomData, loading, updateScenario, updateTimer, updateActiveStage, updateQuestions, updateDebriefNotes, triggerSurpriseEvent, updateProductPresentation, enableCheckout, updateCheckoutPhase, updateRubric, updateConfig, registerCloser } = useRoomSync(roomId);
   const { isFree } = useSubscriptionContext() || { isFree: false };
   const [upgradeModal, setUpgradeModal] = useState(null);
 
@@ -91,6 +92,14 @@ export default function RoomScreen() {
       setShowSurpriseEvent(true);
     }
   }, [roomData?.surpriseEvent, seenSurpriseEventId]);
+
+  // Registrar quién actúa de Closer para acreditarle a ÉL la comisión al analizar.
+  useEffect(() => {
+    if (role === 'Closer' && roomData && auth.currentUser && roomData.closerUid !== auth.currentUser.uid) {
+      registerCloser(auth.currentUser.uid, userName);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [role, roomData, userName]);
 
   if (loading || !roomData) {
     return (
