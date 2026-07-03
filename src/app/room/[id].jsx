@@ -113,6 +113,12 @@ export default function RoomScreen() {
 
   const { currentScenario, activeStageIndex, timerState } = roomData;
 
+  // Etapas efectivas: si el Trainer eligió una etapa puntual, la sesión se enfoca
+  // solo en ella; si no, todas.
+  const stagesEff = (roomData.config?.focusStageId && roomData.config.focusStageId !== 'all')
+    ? stages.filter(s => s.id === roomData.config.focusStageId)
+    : stages;
+
   const isFacilitator = role === 'Facilitador';
   const isCloser = role === 'Closer';
   const isLead = role === 'Lead';
@@ -122,7 +128,7 @@ export default function RoomScreen() {
   // tiempo configurado de esa etapa (igual que la web).
   const handleStageChange = (idx) => {
     updateActiveStage(idx);
-    const est = parseInt(stages[idx]?.estimatedTime, 10) || 5;
+    const est = parseInt(stagesEff[idx]?.estimatedTime, 10) || 5;
     updateTimer({ isRunning: false, endTimestamp: null, timeLeft: est * 60 });
   };
 
@@ -160,7 +166,7 @@ export default function RoomScreen() {
             <PipelinePanel
               activeStageIndex={activeStageIndex || 0}
               setActiveStageIndex={isFacilitator ? handleStageChange : undefined}
-              stages={stages}
+              stages={stagesEff}
               pipelineQuestions={currentScenario?.pipelineQuestions}
               isFree={isFree}
               onUpgradeStage={() => setUpgradeModal({ feature: 'Cualificación y Cierre', requiredPlan: 'closer' })}
@@ -172,7 +178,7 @@ export default function RoomScreen() {
           {isCloser && (
             <CloserCommandPanel
               currentScenario={currentScenario}
-              activeStage={stages[activeStageIndex || 0]}
+              activeStage={stagesEff[activeStageIndex || 0]}
               pipelineQuestions={currentScenario?.pipelineQuestions}
               productPresentation={roomData.productPresentation}
             />
@@ -186,7 +192,7 @@ export default function RoomScreen() {
                 await updateScenario(s);
                 if (s.productToSell) await updateProductPresentation(s.productToSell);
               }}
-              stages={stages}
+              stages={stagesEff}
               isFacilitator={isFacilitator}
               roomConfig={roomData.config}
             />
@@ -199,11 +205,11 @@ export default function RoomScreen() {
             />
           )}
 
-          {isObserver && stages[activeStageIndex || 0] && (
+          {isObserver && stagesEff[activeStageIndex || 0] && (
             <View style={styles.observerHighlight}>
               <Text style={styles.highlightTitle}>Camino del Closer (Etapa {activeStageIndex + 1})</Text>
-              <Text style={styles.highlightStage}>{stages[activeStageIndex || 0].label}</Text>
-              <Text style={styles.highlightObj}>{stages[activeStageIndex || 0].objective}</Text>
+              <Text style={styles.highlightStage}>{stagesEff[activeStageIndex || 0].label}</Text>
+              <Text style={styles.highlightObj}>{stagesEff[activeStageIndex || 0].objective}</Text>
             </View>
           )}
 
@@ -215,7 +221,7 @@ export default function RoomScreen() {
             <Timer
               timerState={timerState}
               activeStageIndex={activeStageIndex || 0}
-              stages={stages}
+              stages={stagesEff}
               updateTimer={isFacilitator ? updateTimer : undefined}
               maxMinutes={isFree ? 30 : null}
             />
@@ -290,7 +296,7 @@ export default function RoomScreen() {
             <VotingPanel 
               questions={roomData.questions} 
               updateQuestions={updateQuestions}
-              activeStage={stages[activeStageIndex || 0]}
+              activeStage={stagesEff[activeStageIndex || 0]}
               isFacilitator={isFacilitator}
               isObserver={isObserver}
             />
@@ -304,6 +310,7 @@ export default function RoomScreen() {
         onClose={() => setShowSettings(false)}
         roomConfig={roomData.config}
         onSaveConfig={updateConfig}
+        stages={stages}
       />
 
       <PrivateInfoModal

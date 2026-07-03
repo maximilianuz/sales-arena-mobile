@@ -5,17 +5,18 @@ import { X, Save } from 'lucide-react-native';
 import { globalStyles, colors } from '../theme/GlobalStyles';
 import GlassPanel from './GlassPanel';
 
-export default function SettingsModal({ visible, onClose, onSave, roomConfig, onSaveConfig }) {
+export default function SettingsModal({ visible, onClose, onSave, roomConfig, onSaveConfig, stages }) {
   const [provider, setProvider] = useState('openai');
   const [apiKey, setApiKey] = useState('');
   const [apiUrl, setApiUrl] = useState('');
   const [apiModel, setApiModel] = useState('');
 
-  // Producto real + comisión (config de la sala).
+  // Producto real + comisión + etapa a practicar (config de la sala).
   const [commissionPct, setCommissionPct] = useState('10');
   const [prodName, setProdName] = useState('');
   const [prodDesc, setProdDesc] = useState('');
   const [prodPrice, setProdPrice] = useState('');
+  const [focusStageId, setFocusStageId] = useState('all');
 
   useEffect(() => {
     if (visible) {
@@ -32,6 +33,7 @@ export default function SettingsModal({ visible, onClose, onSave, roomConfig, on
       setProdName(rp.name || '');
       setProdDesc(rp.description || '');
       setProdPrice(rp.price ? String(rp.price) : '');
+      setFocusStageId(rc.focusStageId || 'all');
     }
   }, [visible, roomConfig]);
 
@@ -72,7 +74,7 @@ export default function SettingsModal({ visible, onClose, onSave, roomConfig, on
       const realProduct = prodName.trim()
         ? { name: prodName.trim(), description: prodDesc.trim(), price: price > 0 ? price : 1500 }
         : null;
-      onSaveConfig({ commissionPct: Number(commissionPct) || 0, realProduct });
+      onSaveConfig({ commissionPct: Number(commissionPct) || 0, realProduct, focusStageId });
     }
     onClose();
   };
@@ -134,6 +136,22 @@ export default function SettingsModal({ visible, onClose, onSave, roomConfig, on
               />
 
               <View style={{ height: 1, backgroundColor: colors.glassBorder, marginTop: 24, marginBottom: 4 }} />
+              <Text style={[styles.label, { color: colors.accent }]}>Etapa a practicar</Text>
+              <View style={styles.providerGrid}>
+                {[{ id: 'all', label: 'Toda la venta' }, ...((stages || []).map((s) => ({ id: s.id, label: s.label })))].map((opt) => (
+                  <TouchableOpacity
+                    key={opt.id}
+                    style={[styles.providerBtn, focusStageId === opt.id && styles.providerBtnActive]}
+                    onPress={() => setFocusStageId(opt.id)}
+                  >
+                    <Text style={[styles.providerText, focusStageId === opt.id && { color: 'white' }]}>{opt.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <Text style={{ color: colors.textMuted, fontSize: 12, marginTop: 4 }}>
+                Enfocá la sesión en una etapa (ej. solo Cierre) o en toda la venta.
+              </Text>
+
               <Text style={[styles.label, { color: colors.accent }]}>Comisión (% del precio)</Text>
               <TextInput
                 style={styles.input}
