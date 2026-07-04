@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert,
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Shuffle, Copy, BookOpen, Trophy } from 'lucide-react-native';
+import { Shuffle, Copy, BookOpen, Trophy, Target } from 'lucide-react-native';
 import { colors, globalStyles } from '../theme/GlobalStyles';
 import GlassPanel from '../components/GlassPanel';
 import LevelCard from '../components/LevelCard';
@@ -73,6 +73,12 @@ export default function LobbyScreen() {
 
           {/* Camino del Closer (progresión Novato→Pro) */}
           <ProgressPath />
+
+          {/* Práctica solo contra el comprador IA */}
+          <TouchableOpacity style={styles.soloBtn} onPress={() => router.push('/solo')}>
+            <Target size={16} color={colors.success} />
+            <Text style={styles.soloBtnText}>{i18n.language?.startsWith('en') ? 'Practice solo — AI Buyer' : 'Practicar solo — Comprador IA'}</Text>
+          </TouchableOpacity>
 
           {/* Ranking mundial + torneo mensual */}
           <TouchableOpacity style={styles.leaderboardBtn} onPress={() => router.push('/leaderboard')}>
@@ -237,5 +243,13 @@ const styles = StyleSheet.create({
   },
   leaderboardBtnText: {
     color: colors.accent, fontWeight: '700', fontSize: 14,
+  },
+  soloBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    paddingVertical: 12, borderRadius: 12, marginBottom: 16,
+    backgroundColor: 'rgba(16,185,129,0.08)', borderWidth: 1, borderColor: 'rgba(16,185,129,0.35)',
+  },
+  soloBtnText: {
+    color: colors.success, fontWeight: '700', fontSize: 14,
   },
 });

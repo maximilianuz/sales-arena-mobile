@@ -54,6 +54,7 @@ export default function RootLayout() {
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="room/[id]" options={{ headerShown: false }} />
           <Stack.Screen name="leaderboard" options={{ headerShown: false }} />
+          <Stack.Screen name="solo" options={{ headerShown: false }} />
         </Stack>
       </SubscriptionProvider>
     );
