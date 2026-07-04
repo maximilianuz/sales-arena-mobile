@@ -17,6 +17,9 @@ export default function LevelCard() {
   const isEn = (i18n.language || '').startsWith('en');
   const [stats, setStats] = useState(null);
   const [levelUp, setLevelUp] = useState(null); // tier al que acaba de ascender
+  // Timestamp estable por montaje (precisión de días → alcanza y el linter
+  // del compiler no permite Date.now() en render).
+  const [now] = useState(() => Date.now());
 
   useEffect(() => {
     const uid = auth.currentUser?.uid;
@@ -49,6 +52,14 @@ export default function LevelCard() {
   const supportPoints = stats?.supportPoints || 0;
   const badges = earnedBadges(stats || {});
 
+  // Espíritu de equipo (espejo de la regla del servidor): tras 3 sesiones,
+  // ayudar como Lead/Observador en los últimos 7 días da +10%; si no, -15%.
+  const sinceSupport = stats?.lastSupportDate
+    ? Math.round((now - new Date(stats.lastSupportDate).getTime()) / 86400000)
+    : null;
+  const showSpirit = (stats?.sessionsCompleted || 0) >= 3;
+  const spiritActive = sinceSupport !== null && sinceSupport <= 7;
+
   return (
     <View style={[styles.card, { borderColor: `${tier.color}55`, shadowColor: tier.color }]}>
       <View style={styles.topRow}>
@@ -77,6 +88,15 @@ export default function LevelCard() {
           <View style={styles.stat}><HandHeart size={12} color="#8b5cf6" /><Text style={styles.meta}> {supportPoints.toLocaleString('en-US')} pts</Text></View>
         )}
       </View>
+
+      {/* Espíritu de equipo: recordatorio de ayudar como Lead/Observador */}
+      {showSpirit && (
+        <Text style={[styles.spiritText, { color: spiritActive ? colors.success : colors.accent }]}>
+          {spiritActive
+            ? (isEn ? '🤝 Team spirit active: +10% on commissions' : '🤝 Espíritu de equipo activo: +10% en comisiones')
+            : (isEn ? '⚠️ Play Lead or Observer this week to avoid -15%' : '⚠️ Hacé de Lead u Observador esta semana para evitar el -15%')}
+        </Text>
+      )}
 
       {/* Insignias ganadas (derivadas de stats, sin escritura extra) */}
       {badges.length > 0 && (
@@ -120,6 +140,7 @@ const styles = StyleSheet.create({
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 14, flexWrap: 'wrap' },
   stat: { flexDirection: 'row', alignItems: 'center' },
   meta: { fontSize: 12, color: colors.textMuted },
+  spiritText: { fontSize: 11, fontWeight: '600', marginTop: 8 },
   badgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
   badgeChip: {
     fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.85)',

@@ -2,62 +2,77 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ref, onValue } from 'firebase/database';
-import { ArrowLeft, Globe, Trophy, Clock, CheckCircle2 } from 'lucide-react-native';
+import { ref, onValue, query, orderByKey, startAt } from 'firebase/database';
+import { ArrowLeft, Globe, Trophy, Zap, CheckCircle2 } from 'lucide-react-native';
 import { db, auth } from '../utils/db';
 import { tierFromEarnings, tierLabel, formatMoney } from '../utils/gamification';
 import { colors, globalStyles } from '../theme/GlobalStyles';
 import GlassPanel from '../components/GlassPanel';
 
-// Tabla de posiciones mundial + torneo mensual (espejo de la página web).
-// Lee los nodos `leaderboard/*` que escribe el servidor (analyze-session).
+// Tabla de posiciones estilo Skool: 7 días / 30 días / histórico (espejo web).
+// Ventanas rodantes agregadas client-side desde `leaderboard/daily`.
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 const TOP_N = 50;
 
-function currentSeason() {
-  return new Date().toISOString().slice(0, 7); // YYYY-MM
-}
-
-function daysLeftInMonth() {
-  const now = new Date();
-  const end = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-  return Math.max(0, Math.ceil((end - now) / 86400000));
-}
-
-function seasonLabel(lng) {
-  const en = typeof lng === 'string' && lng.startsWith('en');
-  return new Date().toLocaleDateString(en ? 'en-US' : 'es-AR', { month: 'long', year: 'numeric' });
+// Suma los buckets diarios por usuario → una fila por closer.
+function aggregateDaily(daysData) {
+  const agg = {};
+  Object.values(daysData || {}).forEach(dayNode => {
+    Object.entries(dayNode || {}).forEach(([uid, e]) => {
+      const a = agg[uid] || (agg[uid] = { uid, name: '', earnings: 0, closes: 0, totalEarnings: 0 });
+      a.earnings += e.earnings || 0;
+      a.closes += e.closes || 0;
+      a.totalEarnings = Math.max(a.totalEarnings, e.totalEarnings || 0);
+      a.name = e.name || a.name;
+    });
+  });
+  return Object.values(agg);
 }
 
 export default function LeaderboardScreen() {
   const { i18n } = useTranslation();
   const isEn = (i18n.language || '').startsWith('en');
   const router = useRouter();
-  const [tab, setTab] = useState('season');
+  const [tab, setTab] = useState('week'); // 'week' | 'month' | 'all'
   // Guardamos {tab, list} juntos: si board.tab !== tab actual, está cargando.
   const [board, setBoard] = useState(null);
   const myUid = auth.currentUser?.uid;
 
   useEffect(() => {
-    const path = tab === 'season' ? `leaderboard/seasons/${currentSeason()}` : 'leaderboard/global';
-    const unsub = onValue(ref(db, path), snap => {
-      const data = snap.val() || {};
-      const key = tab === 'season' ? 'earnings' : 'totalEarnings';
-      const list = Object.entries(data)
-        .map(([uid, e]) => ({ uid, ...e }))
-        .filter(e => (e[key] || 0) > 0)
-        .sort((a, b) => (b[key] || 0) - (a[key] || 0))
-        .slice(0, TOP_N);
-      setBoard({ tab, list });
-    }, () => setBoard({ tab, list: [] }));
-    return () => unsub();
+    let unsub;
+    if (tab === 'all') {
+      unsub = onValue(ref(db, 'leaderboard/global'), snap => {
+        const data = snap.val() || {};
+        const list = Object.entries(data)
+          .map(([uid, e]) => ({ uid, ...e, earnings: e.totalEarnings || 0 }))
+          .filter(e => e.earnings > 0)
+          .sort((a, b) => b.earnings - a.earnings)
+          .slice(0, TOP_N);
+        setBoard({ tab, list });
+      }, () => setBoard({ tab, list: [] }));
+    } else {
+      const days = tab === 'week' ? 7 : 30;
+      const startKey = new Date(Date.now() - (days - 1) * 86400000).toISOString().slice(0, 10);
+      unsub = onValue(query(ref(db, 'leaderboard/daily'), orderByKey(), startAt(startKey)), snap => {
+        const list = aggregateDaily(snap.val())
+          .filter(e => e.earnings > 0)
+          .sort((a, b) => b.earnings - a.earnings)
+          .slice(0, TOP_N);
+        setBoard({ tab, list });
+      }, () => setBoard({ tab, list: [] }));
+    }
+    return () => unsub && unsub();
   }, [tab]);
 
   const entries = board && board.tab === tab ? board.list : null; // null = cargando
-
   const myRank = entries && myUid ? entries.findIndex(e => e.uid === myUid) + 1 : 0;
-  const days = daysLeftInMonth();
+
+  const TABS = [
+    { id: 'week', Icon: Zap, label: isEn ? '7 days' : '7 días' },
+    { id: 'month', Icon: Trophy, label: isEn ? '30 days' : '30 días' },
+    { id: 'all', Icon: Globe, label: isEn ? 'All-time' : 'Histórico' },
+  ];
 
   return (
     <View style={globalStyles.container}>
@@ -69,29 +84,15 @@ export default function LeaderboardScreen() {
           <Text style={styles.title}>🏆 {isEn ? 'Leaderboard' : 'Tabla de posiciones'}</Text>
         </View>
 
-        {/* Tabs */}
+        {/* Tabs estilo Skool */}
         <View style={styles.tabsRow}>
-          {[
-            { id: 'season', Icon: Trophy, label: isEn ? 'Tournament' : 'Torneo' },
-            { id: 'global', Icon: Globe, label: isEn ? 'World' : 'Mundial' },
-          ].map(({ id, Icon, label }) => (
+          {TABS.map(({ id, Icon, label }) => (
             <TouchableOpacity key={id} onPress={() => setTab(id)} style={[styles.tab, tab === id && styles.tabActive]}>
               <Icon size={14} color={tab === id ? 'white' : colors.textMuted} />
               <Text style={[styles.tabText, tab === id && { color: 'white' }]}>{label}</Text>
             </TouchableOpacity>
           ))}
         </View>
-
-        {tab === 'season' && (
-          <View style={styles.countdownRow}>
-            <Clock size={13} color={colors.accent} />
-            <Text style={styles.countdown}>
-              {' '}{seasonLabel(i18n.language)} · {isEn
-                ? `${days} day${days === 1 ? '' : 's'} left`
-                : `${days} día${days === 1 ? '' : 's'} restante${days === 1 ? '' : 's'}`}
-            </Text>
-          </View>
-        )}
 
         {myRank > 0 && (
           <Text style={styles.myRank}>{isEn ? `Your position: #${myRank}` : `Tu posición: #${myRank}`}</Text>
@@ -103,15 +104,14 @@ export default function LeaderboardScreen() {
             <View style={{ alignItems: 'center', paddingVertical: 28 }}>
               <Text style={{ fontSize: 30 }}>🏟️</Text>
               <Text style={{ color: colors.textMuted, textAlign: 'center', marginTop: 6 }}>
-                {tab === 'season'
-                  ? (isEn ? 'No commissions this month yet.' : 'Todavía no hay comisiones este mes.')
-                  : (isEn ? 'The world ranking is empty. Be the first.' : 'El ranking mundial está vacío. Sé el primero.')}
+                {tab === 'all'
+                  ? (isEn ? 'The ranking is empty. Be the first.' : 'El ranking está vacío. Sé el primero.')
+                  : (isEn ? 'No commissions in this period yet.' : 'Todavía no hay comisiones en este período.')}
               </Text>
             </View>
           )}
           {entries && entries.map((e, i) => {
-            const earnings = tab === 'season' ? (e.earnings || 0) : (e.totalEarnings || 0);
-            const { tier } = tierFromEarnings(e.totalEarnings ?? earnings);
+            const { tier } = tierFromEarnings(e.totalEarnings || e.earnings || 0);
             const medal = MEDALS[i];
             const isMe = e.uid === myUid;
             return (
@@ -129,7 +129,7 @@ export default function LeaderboardScreen() {
                     <Text style={styles.closes}> {e.closes}</Text>
                   </View>
                 )}
-                <Text style={styles.money}>{formatMoney(earnings)}</Text>
+                <Text style={styles.money}>{formatMoney(e.earnings)}</Text>
               </View>
             );
           })}
@@ -137,8 +137,8 @@ export default function LeaderboardScreen() {
 
         <Text style={styles.disclaimer}>
           {isEn
-            ? 'Commissions are simulated practice earnings. Rankings update after each analyzed session.'
-            : 'Las comisiones son ganancias simuladas de práctica. El ranking se actualiza con cada sesión analizada.'}
+            ? 'Helping as Lead or Observer earns +10% team spirit; a week without helping costs -15%.'
+            : 'Ayudar como Lead u Observador da +10% de bonus; una semana sin ayudar descuenta 15%.'}
         </Text>
       </ScrollView>
     </View>
@@ -161,8 +161,6 @@ const styles = StyleSheet.create({
   },
   tabActive: { backgroundColor: 'rgba(99,102,241,0.25)', borderColor: 'rgba(99,102,241,0.5)' },
   tabText: { fontWeight: '700', fontSize: 13, color: colors.textMuted },
-  countdownRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
-  countdown: { fontSize: 12, color: colors.accent, fontWeight: '600' },
   myRank: { fontSize: 13, color: colors.textMuted, marginBottom: 10 },
   row: {
     flexDirection: 'row', alignItems: 'center', gap: 10,

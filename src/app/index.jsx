@@ -7,6 +7,7 @@ import { Shuffle, Copy, BookOpen, Trophy } from 'lucide-react-native';
 import { colors, globalStyles } from '../theme/GlobalStyles';
 import GlassPanel from '../components/GlassPanel';
 import LevelCard from '../components/LevelCard';
+import ProgressPath from '../components/ProgressPath';
 
 
 export default function LobbyScreen() {
@@ -69,6 +70,9 @@ export default function LobbyScreen() {
           </View>
 
           <LevelCard />
+
+          {/* Camino del Closer (progresión Novato→Pro) */}
+          <ProgressPath />
 
           {/* Ranking mundial + torneo mensual */}
           <TouchableOpacity style={styles.leaderboardBtn} onPress={() => router.push('/leaderboard')}>
