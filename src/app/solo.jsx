@@ -8,6 +8,7 @@ import GlassPanel from '../components/GlassPanel';
 import BuyerAvatar from '../components/BuyerAvatar';
 import { generateAIScenario } from '../utils/universalAiClient';
 import { buyerTurn, initialBuyerState, scoreSolo } from '../utils/roleplayClient';
+import { openingLine } from '../utils/buyerPrompt';
 import { getPersonality } from '../utils/leadPersonalities';
 
 // Modo PRÁCTICA SOLO (móvil): el closer le vende al comprador IA con estado real
@@ -50,14 +51,11 @@ export default function SoloScreen() {
       const sc = await generateAIScenario({ level: 'intermedio', theme: '', leadTemperature: 'tibio', targetObjection: 'Aleatoria (Sorpréndeme)' }, [], i18n.language);
       if (!sc || typeof sc !== 'object') throw new Error(isEn ? 'Could not generate the buyer.' : 'No se pudo generar el comprador.');
       setScenario(sc);
-      const opening = await buyerTurn({
-        scenario: sc, state: initialBuyerState(),
-        history: [{ role: 'user', content: isEn ? '[The call connects. Greet briefly in character.]' : '[La llamada conecta. Saludá breve en personaje.]' }],
-        language: i18n.language,
-      });
-      setState(opening.state);
-      setMessages([{ role: 'assistant', content: opening.reply }]);
-      if (opening.thought) setThoughts([opening.thought]);
+      // Saludo local (sin IA) para no gatillar el rate limit de Groq justo
+      // después de generar el escenario. La IA responde desde el 1er turno.
+      setState(initialBuyerState());
+      setMessages([{ role: 'assistant', content: openingLine(sc, i18n.language) }]);
+      setThoughts([]);
       setPhase('live');
     } catch (e) {
       setError(e.message);
