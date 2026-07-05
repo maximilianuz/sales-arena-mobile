@@ -10,6 +10,18 @@ import { generateAIScenario } from '../utils/universalAiClient';
 import { buyerTurn, initialBuyerState, scoreSolo } from '../utils/roleplayClient';
 import { openingLine } from '../utils/buyerPrompt';
 import { getPersonality } from '../utils/leadPersonalities';
+import { speak, stopSpeaking } from '../utils/voice';
+
+// Expresión emocional del lead por turno (la emite la IA; sincronizar con la web).
+const EMOTION_META = {
+  neutral:      { emoji: '😐', es: 'neutral', en: 'neutral' },
+  interesado:   { emoji: '🙂', es: 'interesado', en: 'interested' },
+  esceptico:    { emoji: '🤨', es: 'escéptico', en: 'skeptical' },
+  molesto:      { emoji: '😠', es: 'molesto', en: 'annoyed' },
+  entusiasmado: { emoji: '😄', es: 'entusiasmado', en: 'excited' },
+  dudoso:       { emoji: '😕', es: 'dudoso', en: 'hesitant' },
+  apurado:      { emoji: '⏱️', es: 'apurado', en: 'in a hurry' }
+};
 
 // Modo PRÁCTICA SOLO (móvil): el closer le vende al comprador IA con estado real
 // (temperatura/confianza/paciencia), capa oculta y consecuencias. Al terminar
@@ -74,12 +86,14 @@ export default function SoloScreen() {
     try {
       const turn = await buyerTurn({ scenario, state, history: nextHistory, language: i18n.language });
       setState(turn.state);
-      setMessages([...nextHistory, { role: 'assistant', content: turn.reply }]);
+      setMessages([...nextHistory, { role: 'assistant', content: turn.reply, emotion: turn.emotion }]);
       if (turn.thought) setThoughts(t => [...t, turn.thought]);
       if (turn.outcome === 'closed' || turn.outcome === 'lost') {
         setOutcome(turn.outcome);
         setPhase('ended');
       }
+      // Voz del lead con la emoción del turno (Fish Audio via backend; silencioso si falla).
+      speak(turn.reply, { personalityId: scenario?.personality, language: i18n.language, emotion: turn.emotion });
     } catch (e) {
       setError(e.message);
     } finally {
@@ -174,7 +188,7 @@ export default function SoloScreen() {
           <TouchableOpacity style={[globalStyles.btn, { flex: 1, borderWidth: 1, borderColor: colors.glassBorder }]} onPress={() => router.back()}>
             <Text style={globalStyles.btnText}>{isEn ? 'Lobby' : 'Lobby'}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[globalStyles.btn, globalStyles.btnPrimary, { flex: 1 }]} onPress={() => { setPhase('intro'); setScenario(null); setMessages([]); setThoughts([]); setAnalysis(null); setOutcome(null); setState(initialBuyerState()); }}>
+          <TouchableOpacity style={[globalStyles.btn, globalStyles.btnPrimary, { flex: 1 }]} onPress={() => { stopSpeaking(); setPhase('intro'); setScenario(null); setMessages([]); setThoughts([]); setAnalysis(null); setOutcome(null); setState(initialBuyerState()); }}>
             <Text style={globalStyles.btnText}>{isEn ? 'New call' : 'Nueva llamada'}</Text>
           </TouchableOpacity>
         </View>
@@ -212,6 +226,11 @@ export default function SoloScreen() {
         <ScrollView ref={scrollRef} style={{ flex: 1 }} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
           {messages.map((m, i) => (
             <View key={i} style={[styles.bubble, m.role === 'user' ? styles.bubbleUser : styles.bubbleLead]}>
+              {m.role !== 'user' && m.emotion && m.emotion !== 'neutral' && EMOTION_META[m.emotion] && (
+                <Text style={styles.emotionChip}>
+                  {EMOTION_META[m.emotion].emoji} {isEn ? EMOTION_META[m.emotion].en : EMOTION_META[m.emotion].es}
+                </Text>
+              )}
               <Text style={styles.bubbleText}>{m.content}</Text>
             </View>
           ))}
@@ -252,6 +271,7 @@ const styles = StyleSheet.create({
   bubbleUser: { alignSelf: 'flex-end', backgroundColor: colors.primary, borderBottomRightRadius: 4 },
   bubbleLead: { alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.06)', borderBottomLeftRadius: 4 },
   bubbleText: { color: 'white', fontSize: 14, lineHeight: 19 },
+  emotionChip: { color: 'rgba(255,255,255,0.45)', fontSize: 11, fontStyle: 'italic', marginBottom: 3 },
   thinking: { color: colors.textMuted, fontStyle: 'italic', fontSize: 13, paddingLeft: 8 },
   input: { flex: 1, backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: colors.glassBorder, borderRadius: 12, color: 'white', paddingHorizontal: 14, paddingVertical: 10, fontSize: 14 },
   thoughtBox: { alignSelf: 'stretch', marginTop: 12, padding: 12, backgroundColor: 'rgba(139,92,246,0.08)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(139,92,246,0.2)' },

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Sales Arena",
     "slug": "sales-arena-mobile",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "salesarenamobile",
@@ -13,7 +13,7 @@
     "android": {
       "package": "com.maximilianoc.salesarenamobile",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#5e5ce6",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
