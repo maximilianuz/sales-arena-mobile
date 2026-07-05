@@ -1,4 +1,5 @@
 import { auth } from './db';
+import { inferGender } from './genderFromName';
 
 // expo-audio se importa DINÁMICAMENTE: si el módulo nativo no está en el build,
 // la app no crashea al arrancar — solo queda sin voz (import estático dentro

@@ -33,6 +33,7 @@ export default class ErrorBoundary extends React.Component {
         <View style={styles.badge}><Text style={styles.badgeText}>⚠</Text></View>
         <Text style={styles.title}>Algo se rompió</Text>
         <Text style={styles.body}>Tu sesión está a salvo. Probá reintentar.</Text>
+        {this.state.error ? <Text style={{ color: 'rgba(255,255,255,0.35)', fontSize: 11, textAlign: 'center', marginTop: 8 }}>{String(this.state.error?.message || this.state.error)}</Text> : null}
         <TouchableOpacity style={styles.btn} onPress={this.handleRetry}>
           <Text style={styles.btnText}>Reintentar</Text>
         </TouchableOpacity>
