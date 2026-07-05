@@ -11,6 +11,7 @@ import { buyerTurn, initialBuyerState, scoreSolo } from '../utils/roleplayClient
 import { openingLine } from '../utils/buyerPrompt';
 import { getPersonality } from '../utils/leadPersonalities';
 import { speak, stopSpeaking } from '../utils/voice';
+import { inferGender } from '../utils/genderFromName';
 
 // Expresión emocional del lead por turno (la emite la IA; sincronizar con la web).
 const EMOTION_META = {
@@ -93,7 +94,7 @@ export default function SoloScreen() {
         setPhase('ended');
       }
       // Voz del lead con la emoción del turno (Fish Audio via backend; silencioso si falla).
-      speak(turn.reply, { personalityId: scenario?.personality, language: i18n.language, emotion: turn.emotion });
+      speak(turn.reply, { personalityId: scenario?.personality, language: i18n.language, emotion: turn.emotion, gender: inferGender(scenario?.demographics?.name || '') });
     } catch (e) {
       setError(e.message);
     } finally {
