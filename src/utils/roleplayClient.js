@@ -16,7 +16,13 @@ export async function buyerTurn({ scenario, state, history, language = 'es' }) {
   const res = await fetch(TURN_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ uid: auth.currentUser?.uid, system, messages: history }),
+    // Solo role+content: los mensajes de la UI llevan campos extra (emotion)
+    // que la API de la IA rechaza.
+    body: JSON.stringify({
+      uid: auth.currentUser?.uid,
+      system,
+      messages: (history || []).map(m => ({ role: m.role, content: m.content })),
+    }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Error en el turno');

@@ -9,7 +9,6 @@ import BuyerAvatar from '../components/BuyerAvatar';
 import { generateAIScenario } from '../utils/universalAiClient';
 import { buyerTurn, initialBuyerState, scoreSolo } from '../utils/roleplayClient';
 import { openingLine } from '../utils/buyerPrompt';
-import { getPersonality } from '../utils/leadPersonalities';
 import { speak, stopSpeaking } from '../utils/voice';
 import { inferGender } from '../utils/genderFromName';
 import MethodScores from '../components/MethodScores';
@@ -55,7 +54,6 @@ export default function SoloScreen() {
 
   useEffect(() => { if (scrollRef.current) scrollRef.current.scrollToEnd({ animated: true }); }, [messages, phase]);
 
-  const persona = scenario ? getPersonality(scenario.personality) : null;
   const leadName = scenario?.demographics?.name || (isEn ? 'Prospect' : 'Prospecto');
 
   const start = async () => {
@@ -215,8 +213,10 @@ export default function SoloScreen() {
               <PhoneOff size={16} color={colors.danger} />
             </TouchableOpacity>
           </View>
+          {/* Solo el nombre: la personalidad DISC no se muestra al closer —
+              la descubre conversando (como en la vida real). */}
           <View style={{ alignItems: 'center', marginBottom: 10 }}>
-            <BuyerAvatar state={state} name={`${leadName}${persona ? ` · ${isEn ? persona.en : persona.es}` : ''}`} isEn={isEn} size={110} />
+            <BuyerAvatar state={state} name={leadName} isEn={isEn} size={110} />
           </View>
           <View style={{ flexDirection: 'row', gap: 12 }}>
             {METERS.map(m => (
