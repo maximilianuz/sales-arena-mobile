@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   close: { position: 'absolute', top: 12, right: 12, zIndex: 2, padding: 4 },
   iconWrap: {
     width: 56, height: 56, borderRadius: 28,
-    backgroundColor: 'rgba(99, 102, 241, 0.15)',
+    backgroundColor: 'rgba(94, 92, 230, 0.15)',
     alignItems: 'center', justifyContent: 'center',
     alignSelf: 'center', marginBottom: 14,
   },
@@ -72,12 +72,12 @@ const styles = StyleSheet.create({
   sub: { color: colors.textMuted, textAlign: 'center', fontSize: 14, lineHeight: 20, marginBottom: 18 },
   feature: { color: 'white', fontWeight: '700' },
   planBox: {
-    backgroundColor: 'rgba(99,102,241,0.1)',
+    backgroundColor: 'rgba(94,92,230,0.1)',
     borderRadius: 12,
     padding: 14,
     marginBottom: 18,
     borderWidth: 1,
-    borderColor: 'rgba(99,102,241,0.25)',
+    borderColor: 'rgba(94,92,230,0.25)',
   },
   planRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
   planName: { fontWeight: '700', color: colors.primary },

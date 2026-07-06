@@ -45,7 +45,7 @@ export default class ErrorBoundary extends React.Component {
 const styles = StyleSheet.create({
   wrap: { flex: 1, backgroundColor: colors.bgDark, alignItems: 'center', justifyContent: 'center', padding: 24 },
   badge: {
-    width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(239,68,68,0.12)',
+    width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(255,69,58,0.12)',
     alignItems: 'center', justifyContent: 'center', marginBottom: 16,
   },
   badgeText: { fontSize: 26, color: colors.danger },

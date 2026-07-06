@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
   soloBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
     paddingVertical: 12, borderRadius: 12, marginBottom: 16,
-    backgroundColor: 'rgba(16,185,129,0.08)', borderWidth: 1, borderColor: 'rgba(16,185,129,0.35)',
+    backgroundColor: 'rgba(48,209,88,0.08)', borderWidth: 1, borderColor: 'rgba(48,209,88,0.35)',
   },
   soloBtnText: {
     color: colors.success, fontWeight: '700', fontSize: 14,

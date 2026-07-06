@@ -118,9 +118,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   focusBox: {
-    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+    backgroundColor: 'rgba(94, 92, 230, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(99, 102, 241, 0.3)',
+    borderColor: 'rgba(94, 92, 230, 0.3)',
     padding: 12,
     borderRadius: 8,
     marginBottom: 16,

@@ -1,25 +1,29 @@
 import { StyleSheet } from 'react-native';
 
+// Paleta "Apple" — espejo de la web (src/index.css). Índigo/azul/rosa/verde/
+// naranja/rojo del sistema iOS. Mantener sincronizada con la web.
 export const colors = {
-  primary: '#6366f1',
-  primaryHover: '#4f46e5',
-  primaryGlow: 'rgba(99, 102, 241, 0.4)',
-  
-  secondary: '#ec4899',
-  secondaryHover: '#db2777',
-  secondaryGlow: 'rgba(236, 72, 153, 0.4)',
-  
-  accent: '#f59e0b',
-  success: '#10b981',
-  successGlow: 'rgba(16, 185, 129, 0.3)',
-  danger: '#ef4444',
-  
+  primary: '#5e5ce6',        // systemIndigo
+  primaryHover: '#4a47d0',
+  primaryGlow: 'rgba(94, 92, 230, 0.4)',
+
+  blue: '#0a84ff',           // systemBlue (acento de marca)
+
+  secondary: '#ff375f',      // systemPink
+  secondaryHover: '#e02a50',
+  secondaryGlow: 'rgba(255, 55, 95, 0.4)',
+
+  accent: '#ff9f0a',         // systemOrange
+  success: '#30d158',        // systemGreen
+  successGlow: 'rgba(48, 209, 88, 0.3)',
+  danger: '#ff453a',         // systemRed
+
   bgDark: '#09090b',
   bgCard: 'rgba(24, 24, 27, 0.65)',
-  
+
   textMain: '#f8fafc',
   textMuted: '#94a3b8',
-  
+
   glassBorder: 'rgba(255, 255, 255, 0.08)',
   glassBorderHighlight: 'rgba(255, 255, 255, 0.15)',
 };
@@ -34,7 +38,7 @@ export const globalStyles = StyleSheet.create({
     borderColor: colors.glassBorder,
     borderWidth: 1,
     borderTopColor: colors.glassBorderHighlight,
-    borderRadius: 20,
+    borderRadius: 16,
     padding: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
@@ -44,7 +48,7 @@ export const globalStyles = StyleSheet.create({
   },
   textMain: {
     color: colors.textMain,
-    fontFamily: 'System', // Outfit can be loaded later
+    fontFamily: 'System',
   },
   textMuted: {
     color: colors.textMuted,

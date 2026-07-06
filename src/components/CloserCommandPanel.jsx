@@ -135,19 +135,19 @@ export default function CloserCommandPanel({ currentScenario, activeStage, pipel
         <IntelTile
           label={isEn ? 'Core fear' : 'Miedo central'}
           color={colors.danger}
-          bg="rgba(239,68,68,0.07)"
+          bg="rgba(255,69,58,0.07)"
           text={currentScenario.psychology?.primaryFear}
         />
         <IntelTile
           label={isEn ? 'Opens up when' : 'Se abre cuando'}
           color={colors.success}
-          bg="rgba(16,185,129,0.06)"
+          bg="rgba(48,209,88,0.06)"
           text={currentScenario.behavioralCues?.opensUpWhen}
         />
         <IntelTile
           label={isEn ? 'Builds trust' : 'Genera confianza'}
           color="#a5b4fc"
-          bg="rgba(99,102,241,0.06)"
+          bg="rgba(94,92,230,0.06)"
           text={currentScenario.psychology?.trustTrigger}
         />
       </View>
@@ -175,9 +175,9 @@ export default function CloserCommandPanel({ currentScenario, activeStage, pipel
 
 const styles = StyleSheet.create({
   missionCard: {
-    backgroundColor: 'rgba(99,102,241,0.1)',
+    backgroundColor: 'rgba(94,92,230,0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(99,102,241,0.3)',
+    borderColor: 'rgba(94,92,230,0.3)',
     borderRadius: 16,
     padding: 16,
   },
@@ -194,8 +194,8 @@ const styles = StyleSheet.create({
   missionObjective: { color: 'white', fontWeight: '700', fontSize: 15, lineHeight: 21 },
   winSignal: {
     flexDirection: 'row', gap: 6, marginTop: 10, padding: 10,
-    backgroundColor: 'rgba(16,185,129,0.08)', borderRadius: 8,
-    borderWidth: 1, borderColor: 'rgba(16,185,129,0.2)',
+    backgroundColor: 'rgba(48,209,88,0.08)', borderRadius: 8,
+    borderWidth: 1, borderColor: 'rgba(48,209,88,0.2)',
   },
   winSignalText: { flex: 1, fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 18 },
   personaHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
@@ -206,8 +206,8 @@ const styles = StyleSheet.create({
   coachLabel: { fontSize: 11, fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 2 },
   coachText: { fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 19 },
   questionsCard: {
-    backgroundColor: 'rgba(16,185,129,0.06)',
-    borderWidth: 1, borderColor: 'rgba(16,185,129,0.2)',
+    backgroundColor: 'rgba(48,209,88,0.06)',
+    borderWidth: 1, borderColor: 'rgba(48,209,88,0.2)',
     borderRadius: 16, padding: 16,
   },
   qHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },

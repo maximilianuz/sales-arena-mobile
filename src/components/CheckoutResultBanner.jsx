@@ -12,7 +12,7 @@ export default function CheckoutResultBanner({ checkout }) {
       styles.banner,
       {
         borderColor: closed ? colors.success : colors.danger,
-        backgroundColor: closed ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
+        backgroundColor: closed ? 'rgba(48,209,88,0.15)' : 'rgba(255,69,58,0.15)',
       },
     ]}>
       <Text style={styles.emoji}>{closed ? '🎉' : '😔'}</Text>

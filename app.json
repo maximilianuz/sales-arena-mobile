@@ -2,7 +2,7 @@
   "expo": {
     "name": "Sales Arena",
     "slug": "sales-arena-mobile",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "salesarenamobile",
@@ -29,7 +29,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#5e5ce6",
           "android": {
             "image": "./assets/images/splash-icon.png",
             "imageWidth": 76

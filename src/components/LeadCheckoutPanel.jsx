@@ -269,7 +269,7 @@ export default function LeadCheckoutPanel({ checkout, updateCheckoutPhase }) {
   }
 
   return (
-    <GlassPanel style={{ borderColor: 'rgba(99,102,241,0.4)' }}>
+    <GlassPanel style={{ borderColor: 'rgba(94,92,230,0.4)' }}>
       <View style={styles.panelHeader}>
         <ShoppingCart size={18} color={colors.primary} />
         <Text style={styles.panelTitle}>🎭 Tu Nivel de Fricción (privado)</Text>

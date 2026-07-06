@@ -29,7 +29,7 @@ const EMOTION_META = {
 // scorea el transcript con la misma rúbrica. Voz pendiente (requiere expo-av/speech).
 
 const METERS = [
-  { key: 'temperature', Icon: Flame, es: 'Interés', en: 'Interest', color: '#f59e0b' },
+  { key: 'temperature', Icon: Flame, es: 'Interés', en: 'Interest', color: '#ff9f0a' },
   { key: 'trust', Icon: Shield, es: 'Confianza', en: 'Trust', color: '#22d3ee' },
   { key: 'patience', Icon: Clock, es: 'Paciencia', en: 'Patience', color: '#a78bfa' },
 ];
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 20, fontWeight: '800', color: 'white', textAlign: 'center', marginVertical: 8 },
   intro: { color: colors.textMuted, fontSize: 14, lineHeight: 20, textAlign: 'center' },
   err: { color: colors.danger, fontSize: 13, marginTop: 10, textAlign: 'center' },
-  hangup: { backgroundColor: 'rgba(239,68,68,0.12)', borderWidth: 1, borderColor: 'rgba(239,68,68,0.3)', borderRadius: 10, padding: 8 },
+  hangup: { backgroundColor: 'rgba(255,69,58,0.12)', borderWidth: 1, borderColor: 'rgba(255,69,58,0.3)', borderRadius: 10, padding: 8 },
   meterLbl: { fontSize: 10, color: colors.textMuted },
   track: { height: 5, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden' },
   bubble: { maxWidth: '82%', padding: 10, borderRadius: 14 },

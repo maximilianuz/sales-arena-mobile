@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   },
   err: { color: colors.danger, fontSize: 12, marginBottom: 6 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 9, paddingHorizontal: 8, borderRadius: 8 },
-  rowActive: { backgroundColor: 'rgba(99,102,241,0.15)', borderWidth: 1, borderColor: 'rgba(99,102,241,0.4)' },
+  rowActive: { backgroundColor: 'rgba(94,92,230,0.15)', borderWidth: 1, borderColor: 'rgba(94,92,230,0.4)' },
   rowLabel: { flex: 1, color: 'white', fontSize: 14 },
   saving: { color: colors.textMuted, fontSize: 12 },
 });

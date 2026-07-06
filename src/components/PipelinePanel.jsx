@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     borderColor: colors.glassBorder,
   },
   stageActive: { backgroundColor: colors.primary, borderColor: colors.primaryHover },
-  stagePast: { backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: colors.success },
+  stagePast: { backgroundColor: 'rgba(48, 209, 88, 0.2)', borderColor: colors.success },
   stageLocked: { backgroundColor: 'rgba(0,0,0,0.3)', borderStyle: 'dashed', opacity: 0.7 },
   stageText: { color: colors.textMuted, fontSize: 12, fontWeight: '600' },
   textActive: { color: 'white' },

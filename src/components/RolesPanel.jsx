@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: 12,
     fontWeight: '600',
-    backgroundColor: 'rgba(99, 102, 241, 0.15)',
+    backgroundColor: 'rgba(94, 92, 230, 0.15)',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 10,
