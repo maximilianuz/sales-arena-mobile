@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ref, onValue, query, orderByKey, startAt } from 'firebase/database';
 import { ArrowLeft, Globe, Trophy, Zap, CheckCircle2 } from 'lucide-react-native';
 import { db, auth } from '../utils/db';
+import { flagEmoji } from '../utils/countries';
 import { tierFromEarnings, tierLabel, formatMoney } from '../utils/gamification';
 import { colors, globalStyles } from '../theme/GlobalStyles';
 import GlassPanel from '../components/GlassPanel';
@@ -20,11 +21,12 @@ function aggregateDaily(daysData) {
   const agg = {};
   Object.values(daysData || {}).forEach(dayNode => {
     Object.entries(dayNode || {}).forEach(([uid, e]) => {
-      const a = agg[uid] || (agg[uid] = { uid, name: '', earnings: 0, closes: 0, totalEarnings: 0 });
+      const a = agg[uid] || (agg[uid] = { uid, name: '', earnings: 0, closes: 0, totalEarnings: 0, country: null });
       a.earnings += e.earnings || 0;
       a.closes += e.closes || 0;
       a.totalEarnings = Math.max(a.totalEarnings, e.totalEarnings || 0);
       a.name = e.name || a.name;
+      a.country = e.country || a.country;
     });
   });
   return Object.values(agg);
@@ -119,7 +121,7 @@ export default function LeaderboardScreen() {
                 <Text style={[styles.rank, medal && { fontSize: 18 }]}>{medal || i + 1}</Text>
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text style={styles.name} numberOfLines={1}>
-                    {e.name || 'Closer'}{isMe ? (isEn ? ' (you)' : ' (vos)') : ''}
+                    {e.country ? `${flagEmoji(e.country)} ` : ''}{e.name || 'Closer'}{isMe ? (isEn ? ' (you)' : ' (vos)') : ''}
                   </Text>
                   <Text style={[styles.tierText, { color: tier.color }]}>{tierLabel(tier, i18n.language)}</Text>
                 </View>

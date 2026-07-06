@@ -27,6 +27,7 @@ import CheckoutResultBanner from '../../components/CheckoutResultBanner';
 import CloserCommandPanel from '../../components/CloserCommandPanel';
 import RubricPanel from '../../components/RubricPanel';
 import ListeningLogPanel from '../../components/ListeningLogPanel';
+import WorldClockPanel from '../../components/WorldClockPanel';
 
 const WEB_APP_URL = 'https://sales-arena.netlify.app';
 
@@ -48,6 +49,7 @@ export default function RoomScreen() {
   const [stages, setStages] = useState(() => getDefaultStages(i18n.language));
   
   const [showPrivateInfo, setShowPrivateInfo] = useState(false);
+  const [showClocks, setShowClocks] = useState(false);
   
   const [showSurpriseEvent, setShowSurpriseEvent] = useState(false);
   const [seenSurpriseEventId, setSeenSurpriseEventId] = useState(null);
@@ -172,6 +174,11 @@ export default function RoomScreen() {
 
         <View style={styles.stack}>
           {roomData.checkout?.result && <CheckoutResultBanner checkout={roomData.checkout} />}
+
+          {/* Husos horarios: hora local de cada participante (todos los roles) */}
+          <TouchableOpacity style={styles.clocksBtn} onPress={() => setShowClocks(true)}>
+            <Text style={styles.clocksBtnText}>🌐 Husos horarios</Text>
+          </TouchableOpacity>
 
           {!isLead && !isObserver && (
             <PipelinePanel
@@ -330,6 +337,13 @@ export default function RoomScreen() {
         info={privateInfo}
       />
 
+      <WorldClockPanel
+        visible={showClocks}
+        roomId={roomId}
+        userName={userName}
+        onClose={() => setShowClocks(false)}
+      />
+
       <UpgradeModal
         visible={!!upgradeModal}
         feature={upgradeModal?.feature}
@@ -368,6 +382,12 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 16,
   },
+  clocksBtn: {
+    alignSelf: 'flex-start', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 20,
+    paddingHorizontal: 12, paddingVertical: 6,
+  },
+  clocksBtnText: { color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: '600' },
   stack: {
     gap: 16,
     paddingBottom: 40,

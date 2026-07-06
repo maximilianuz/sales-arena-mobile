@@ -12,6 +12,7 @@ import { openingLine } from '../utils/buyerPrompt';
 import { getPersonality } from '../utils/leadPersonalities';
 import { speak, stopSpeaking } from '../utils/voice';
 import { inferGender } from '../utils/genderFromName';
+import MethodScores from '../components/MethodScores';
 
 // Expresión emocional del lead por turno (la emite la IA; sincronizar con la web).
 const EMOTION_META = {
@@ -181,7 +182,13 @@ export default function SoloScreen() {
               )}
             </View>
             {(analysis.toImprove || []).map((it, i) => <Text key={i} style={styles.improve}>→ {it}</Text>)}
+            <MethodScores scores={analysis.methodScores} />
             {analysis.nextSessionTip ? <Text style={styles.tip}>💡 {analysis.nextSessionTip}</Text> : null}
+            <Text style={styles.soloNote}>
+              {isEn
+                ? 'Solo practice earns 0.5× — real team sessions are worth double.'
+                : 'La práctica solo vale 0.5× — las sesiones reales en equipo valen doble.'}
+            </Text>
           </GlassPanel>
         )}
 
@@ -280,4 +287,5 @@ const styles = StyleSheet.create({
   thought: { fontSize: 13, color: colors.textMuted, fontStyle: 'italic', marginBottom: 4 },
   improve: { fontSize: 13, color: colors.textMuted, marginBottom: 5 },
   tip: { marginTop: 10, padding: 10, backgroundColor: 'rgba(245,158,11,0.08)', borderRadius: 10, fontSize: 13, color: colors.textMuted },
+  soloNote: { marginTop: 10, fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'center' },
 });

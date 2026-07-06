@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ref, onValue } from 'firebase/database';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,8 @@ import { Flame, Target, Wallet, HandHeart } from 'lucide-react-native';
 import { db, auth } from '../utils/db';
 import { tierFromEarnings, tierLabel, formatMoney, TIERS } from '../utils/gamification';
 import { earnedBadges, badgeLabel } from '../utils/badges';
+import { flagEmoji } from '../utils/countries';
+import CountryPicker from './CountryPicker';
 import { colors } from '../theme/GlobalStyles';
 
 const LAST_TIER_KEY = 'sales_arena_last_tier';
@@ -17,6 +19,8 @@ export default function LevelCard() {
   const isEn = (i18n.language || '').startsWith('en');
   const [stats, setStats] = useState(null);
   const [levelUp, setLevelUp] = useState(null); // tier al que acaba de ascender
+  const [country, setCountry] = useState(null);
+  const [showPicker, setShowPicker] = useState(false);
   // Timestamp estable por montaje (precisión de días → alcanza y el linter
   // del compiler no permite Date.now() en render).
   const [now] = useState(() => Date.now());
@@ -41,6 +45,14 @@ export default function LevelCard() {
         AsyncStorage.setItem(LAST_TIER_KEY, curTier.id).catch(() => {});
       }).catch(() => { /* best effort */ });
     });
+    return () => unsub();
+  }, []);
+
+  // Bandera identificatoria del closer (users/{uid}/country).
+  useEffect(() => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+    const unsub = onValue(ref(db, `users/${uid}/country`), (s) => setCountry(s.val() || null));
     return () => unsub();
   }, []);
 
@@ -71,6 +83,11 @@ export default function LevelCard() {
           <View style={styles.moneyRow}>
             <Text style={styles.money}>{formatMoney(total)}</Text>
             <Text style={[styles.tierChip, { color: tier.color, borderColor: `${tier.color}88`, backgroundColor: `${tier.color}22` }]}>{label}</Text>
+            <TouchableOpacity onPress={() => setShowPicker(true)} style={styles.flagBtn}>
+              <Text style={styles.flagBtnText}>
+                {country ? flagEmoji(country) : (isEn ? '+ flag' : '+ bandera')}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -107,6 +124,13 @@ export default function LevelCard() {
         </View>
       )}
 
+      <CountryPicker
+        visible={showPicker}
+        current={country}
+        onClose={() => setShowPicker(false)}
+        onSaved={setCountry}
+      />
+
       {/* Overlay de subida de rango */}
       {levelUp && (
         <View style={[styles.levelUpOverlay, { backgroundColor: `${levelUp.color}ee` }]}>
@@ -135,6 +159,11 @@ const styles = StyleSheet.create({
     fontSize: 10, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 0.5,
     borderWidth: 1, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20, overflow: 'hidden',
   },
+  flagBtn: {
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.05)',
+    paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20,
+  },
+  flagBtnText: { fontSize: 12, color: 'rgba(255,255,255,0.7)' },
   track: { height: 7, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 4, marginTop: 12, marginBottom: 8, overflow: 'hidden' },
   fill: { height: '100%', borderRadius: 4 },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 14, flexWrap: 'wrap' },
