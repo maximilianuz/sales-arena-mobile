@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Send, Phone, PhoneOff, Flame, Shield, Clock, Eye, Sparkles, Trophy } from 'lucide-react-native';
+import { ArrowLeft, Send, Phone, PhoneOff, Flame, Shield, Clock, Eye, Sparkles, Trophy, Package } from 'lucide-react-native';
 import { colors, globalStyles } from '../theme/GlobalStyles';
 import GlassPanel from '../components/GlassPanel';
 import BuyerAvatar from '../components/BuyerAvatar';
@@ -50,6 +50,14 @@ export default function SoloScreen() {
   const [thoughts, setThoughts] = useState([]);
   const [analysis, setAnalysis] = useState(null);
   const [scoring, setScoring] = useState(false);
+  // Config del lead (mismas opciones que el Trainer/web): el closer arma su
+  // prospecto y el producto a vender se genera en base a esto.
+  const [genConfig, setGenConfig] = useState({
+    level: 'Intermedio',
+    theme: 'Aleatorio (Sorpréndeme)',
+    leadTemperature: 'Templado',
+    targetObjection: 'Aleatoria (Sorpréndeme)',
+  });
   const scrollRef = useRef(null);
 
   useEffect(() => { if (scrollRef.current) scrollRef.current.scrollToEnd({ animated: true }); }, [messages, phase]);
@@ -60,7 +68,12 @@ export default function SoloScreen() {
     setPhase('loading');
     setError('');
     try {
-      const sc = await generateAIScenario({ level: 'intermedio', theme: '', leadTemperature: 'tibio', targetObjection: 'Aleatoria (Sorpréndeme)' }, [], i18n.language);
+      const sc = await generateAIScenario({
+        level: genConfig.level,
+        theme: genConfig.theme,
+        leadTemperature: genConfig.leadTemperature,
+        targetObjection: genConfig.targetObjection,
+      }, [], i18n.language);
       if (!sc || typeof sc !== 'object') throw new Error(isEn ? 'Could not generate the buyer.' : 'No se pudo generar el comprador.');
       setScenario(sc);
       // Saludo local (sin IA) para no gatillar el rate limit de Groq justo
@@ -117,27 +130,102 @@ export default function SoloScreen() {
 
   // ── Intro ──
   if (phase === 'intro' || phase === 'loading') {
+    const LEVELS = [
+      { v: 'Principiante', l: isEn ? 'Beginner' : 'Principiante', m: '×0.8' },
+      { v: 'Intermedio', l: isEn ? 'Intermediate' : 'Intermedio', m: '×1.0' },
+      { v: 'Avanzado', l: isEn ? 'Advanced' : 'Avanzado', m: '×1.4' },
+    ];
+    const TEMPS = [
+      { v: 'Frío', l: isEn ? 'Cold' : 'Frío', m: '×1.15' },
+      { v: 'Templado', l: isEn ? 'Warm' : 'Templado', m: '×1.0' },
+      { v: 'Caliente', l: isEn ? 'Hot' : 'Caliente', m: '×0.9' },
+    ];
+    const INDUSTRIES = [
+      'Aleatorio (Sorpréndeme)', 'Software B2B / SaaS', 'Coaching de negocios', 'Cursos online High Ticket',
+      'Agencia de marketing digital', 'Seguros de vida', 'Venta de propiedades', 'Medicina estética',
+      'Consultoría de negocios', 'Venta de autos / concesionaria', 'Gimnasios & boxes',
+    ];
+    const OBJECTIONS = [
+      'Aleatoria (Sorpréndeme)', 'Lo tengo que pensar', 'Me parece caro', 'No tengo el dinero',
+      'No tengo tiempo', 'Socio / Pareja', 'No confío en mí mismo', 'No confío en ustedes',
+    ];
+    const chipLabel = (v) => v.startsWith('Aleatori') ? (isEn ? '🎲 Surprise me' : '🎲 Sorpréndeme') : v;
+
     return (
-      <View style={[globalStyles.container, { padding: 20, justifyContent: 'center' }]}>
+      <ScrollView style={globalStyles.container} contentContainerStyle={{ padding: 20 }}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <ArrowLeft size={18} color="white" /><Text style={styles.backTxt}>{isEn ? 'Back' : 'Volver'}</Text>
         </TouchableOpacity>
-        <GlassPanel style={{ padding: 24, alignItems: 'center' }}>
-          <Text style={{ fontSize: 40 }}>🎯</Text>
-          <Text style={styles.title}>{isEn ? 'Solo practice — AI Buyer' : 'Práctica solo — Comprador IA'}</Text>
-          <Text style={styles.intro}>
-            {isEn
-              ? 'A real, skeptical prospect with hidden objections and a mood that shifts with your technique. Earn their trust — or lose the call.'
-              : 'Un prospecto real y escéptico, con objeciones ocultas y un ánimo que cambia según tu técnica. Ganate su confianza — o perdé la llamada.'}
-          </Text>
+        <GlassPanel style={{ padding: 20 }}>
+          <View style={{ alignItems: 'center' }}>
+            <Text style={{ fontSize: 40 }}>🎯</Text>
+            <Text style={styles.title}>{isEn ? 'Solo practice — AI Buyer' : 'Práctica solo — Comprador IA'}</Text>
+            <Text style={styles.intro}>
+              {isEn
+                ? 'A real, skeptical prospect with hidden objections and a mood that shifts with your technique. Earn their trust — or lose the call.'
+                : 'Un prospecto real y escéptico, con objeciones ocultas y un ánimo que cambia según tu técnica. Ganate su confianza — o perdé la llamada.'}
+            </Text>
+          </View>
+
+          {/* Config del lead: dificultad + temperatura + industria + objeción */}
+          <Text style={styles.cfgLabel}>{isEn ? 'Difficulty' : 'Dificultad'}</Text>
+          <View style={styles.pillRow}>
+            {LEVELS.map(o => {
+              const active = genConfig.level === o.v;
+              return (
+                <TouchableOpacity key={o.v} onPress={() => setGenConfig(c => ({ ...c, level: o.v }))} style={[styles.pillFlex, active && styles.pillActive]}>
+                  <Text style={[styles.pillTxt, active && styles.pillTxtActive]}>{o.l}</Text>
+                  <Text style={styles.pillMult}>{o.m}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          <Text style={styles.cfgLabel}>{isEn ? 'Lead temperature' : 'Temperatura'}</Text>
+          <View style={styles.pillRow}>
+            {TEMPS.map(o => {
+              const active = genConfig.leadTemperature === o.v;
+              return (
+                <TouchableOpacity key={o.v} onPress={() => setGenConfig(c => ({ ...c, leadTemperature: o.v }))} style={[styles.pillFlex, active && styles.pillActiveAccent]}>
+                  <Text style={[styles.pillTxt, active && styles.pillTxtActive]}>{o.l}</Text>
+                  <Text style={styles.pillMult}>{o.m}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          <Text style={styles.cfgLabel}>{isEn ? 'Industry' : 'Rubro / Industria'}</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6, paddingVertical: 2 }}>
+            {INDUSTRIES.map(v => {
+              const active = genConfig.theme === v;
+              return (
+                <TouchableOpacity key={v} onPress={() => setGenConfig(c => ({ ...c, theme: v }))} style={[styles.chip, active && styles.pillActive]}>
+                  <Text style={[styles.chipTxt, active && styles.pillTxtActive]}>{chipLabel(v)}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+
+          <Text style={styles.cfgLabel}>{isEn ? 'Main objection' : 'Objeción principal'}</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6, paddingVertical: 2 }}>
+            {OBJECTIONS.map(v => {
+              const active = genConfig.targetObjection === v;
+              return (
+                <TouchableOpacity key={v} onPress={() => setGenConfig(c => ({ ...c, targetObjection: v }))} style={[styles.chip, active && styles.pillActive]}>
+                  <Text style={[styles.chipTxt, active && styles.pillTxtActive]}>{chipLabel(v)}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+
           {error ? <Text style={styles.err}>{error}</Text> : null}
-          <TouchableOpacity style={[globalStyles.btn, globalStyles.btnPrimary, { marginTop: 16, width: '100%', flexDirection: 'row', justifyContent: 'center', gap: 8 }]} onPress={start} disabled={phase === 'loading'}>
+          <TouchableOpacity style={[globalStyles.btn, globalStyles.btnPrimary, { marginTop: 18, width: '100%', flexDirection: 'row', justifyContent: 'center', gap: 8 }]} onPress={start} disabled={phase === 'loading'}>
             {phase === 'loading'
               ? <><ActivityIndicator color="white" /><Text style={globalStyles.btnText}>{isEn ? 'Generating…' : 'Generando…'}</Text></>
               : <><Phone size={18} color="white" /><Text style={globalStyles.btnText}>{isEn ? 'Start the call' : 'Iniciar la llamada'}</Text></>}
           </TouchableOpacity>
         </GlassPanel>
-      </View>
+      </ScrollView>
     );
   }
 
@@ -159,6 +247,15 @@ export default function SoloScreen() {
               {thoughts.slice(-4).map((th, i) => <Text key={i} style={styles.thought}>“{th}”</Text>)}
             </View>
           )}
+          {(scenario?.hiddenObjection || (Array.isArray(scenario?.rootCauses) && scenario.rootCauses.length > 0)) && (
+            <View style={styles.rootsBox}>
+              <Text style={styles.rootsTitle}>🧅 {isEn ? 'What was really underneath' : 'Lo que había detrás de verdad'}</Text>
+              {scenario?.hiddenObjection ? <Text style={styles.rootsHidden}>“{scenario.hiddenObjection}”</Text> : null}
+              {(scenario?.rootCauses || []).filter(r => typeof r === 'string' && r.trim()).map((r, i) => (
+                <Text key={i} style={styles.rootsItem}>{i + 1}. {r}</Text>
+              ))}
+            </View>
+          )}
           {!analysis && (
             <TouchableOpacity style={[globalStyles.btn, globalStyles.btnPrimary, { marginTop: 16, width: '100%', flexDirection: 'row', justifyContent: 'center', gap: 8 }]} onPress={scoreSession} disabled={scoring}>
               {scoring ? <ActivityIndicator color="white" /> : <Sparkles size={16} color="white" />}
@@ -173,9 +270,15 @@ export default function SoloScreen() {
             <View style={{ alignItems: 'center', marginBottom: 12 }}>
               <Text style={{ fontSize: 44, fontWeight: '900', color: analysis.overallScore >= 8 ? colors.success : analysis.overallScore >= 6 ? colors.accent : colors.danger }}>{analysis.overallScore}/10</Text>
               {analysis.gamification?.earned > 0 && (
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
                   <Trophy size={16} color={colors.success} />
                   <Text style={{ color: colors.success, fontWeight: '800' }}>+${analysis.gamification.earned.toLocaleString('en-US')}</Text>
+                  {analysis.gamification.difficultyMult && analysis.gamification.difficultyMult !== 1 ? (
+                    <Text style={styles.multChip}>{genConfig.level} ×{analysis.gamification.difficultyMult}</Text>
+                  ) : null}
+                  {analysis.gamification.tempMult && analysis.gamification.tempMult !== 1 ? (
+                    <Text style={styles.multChip}>{genConfig.leadTemperature} ×{analysis.gamification.tempMult}</Text>
+                  ) : null}
                 </View>
               )}
             </View>
@@ -230,6 +333,18 @@ export default function SoloScreen() {
             ))}
           </View>
         </GlassPanel>
+
+        {/* Producto a vender: le da clima al closer (qué ofrece) */}
+        {scenario?.productToSell ? (
+          <GlassPanel style={{ padding: 10, marginBottom: 10, borderWidth: 1, borderColor: 'rgba(48,209,88,0.25)', backgroundColor: 'rgba(48,209,88,0.06)' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <Package size={14} color={colors.success} />
+              <Text style={styles.prodTitle}>{isEn ? 'What you sell' : 'Qué vendés'}</Text>
+              {scenario.productPrice > 0 ? <Text style={styles.prodPrice}>· USD {Number(scenario.productPrice).toLocaleString('en-US')}</Text> : null}
+            </View>
+            <Text style={styles.prodTxt} numberOfLines={4}>{scenario.productToSell}</Text>
+          </GlassPanel>
+        ) : null}
 
         <ScrollView ref={scrollRef} style={{ flex: 1 }} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
           {messages.map((m, i) => (
@@ -288,4 +403,25 @@ const styles = StyleSheet.create({
   improve: { fontSize: 13, color: colors.textMuted, marginBottom: 5 },
   tip: { marginTop: 10, padding: 10, backgroundColor: 'rgba(245,158,11,0.08)', borderRadius: 10, fontSize: 13, color: colors.textMuted },
   soloNote: { marginTop: 10, fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'center' },
+  // Config del lead
+  cfgLabel: { fontSize: 11, fontWeight: '700', letterSpacing: 0.5, textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginTop: 14, marginBottom: 6 },
+  pillRow: { flexDirection: 'row', gap: 6 },
+  pillFlex: { flex: 1, paddingVertical: 8, paddingHorizontal: 4, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', backgroundColor: 'rgba(255,255,255,0.02)' },
+  pillActive: { borderColor: 'rgba(100,210,255,0.6)', backgroundColor: 'rgba(100,210,255,0.15)' },
+  pillActiveAccent: { borderColor: 'rgba(255,159,10,0.5)', backgroundColor: 'rgba(255,159,10,0.12)' },
+  pillTxt: { fontSize: 13, fontWeight: '700', color: 'rgba(255,255,255,0.7)' },
+  pillTxtActive: { color: 'white' },
+  pillMult: { fontSize: 11, fontWeight: '700', color: colors.accent, marginTop: 2 },
+  chip: { paddingVertical: 7, paddingHorizontal: 12, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', backgroundColor: 'rgba(255,255,255,0.04)' },
+  chipTxt: { fontSize: 12, fontWeight: '700', color: 'rgba(255,255,255,0.6)' },
+  // Producto a vender
+  prodTitle: { fontSize: 11, fontWeight: '800', letterSpacing: 0.4, textTransform: 'uppercase', color: colors.success },
+  prodPrice: { fontSize: 12, fontWeight: '800', color: colors.success },
+  prodTxt: { fontSize: 13, color: 'white', lineHeight: 18 },
+  // Causas profundas
+  rootsBox: { alignSelf: 'stretch', marginTop: 12, padding: 12, backgroundColor: 'rgba(255,55,95,0.07)', borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,55,95,0.22)' },
+  rootsTitle: { fontSize: 12, fontWeight: '800', textTransform: 'uppercase', color: colors.secondary, marginBottom: 6 },
+  rootsHidden: { fontSize: 13, color: 'white', fontStyle: 'italic', marginBottom: 6 },
+  rootsItem: { fontSize: 13, color: colors.textMuted, marginBottom: 4 },
+  multChip: { fontSize: 11, fontWeight: '800', color: colors.accent, backgroundColor: 'rgba(255,159,10,0.12)', borderWidth: 1, borderColor: 'rgba(255,159,10,0.3)', borderRadius: 20, paddingHorizontal: 8, paddingVertical: 2, overflow: 'hidden' },
 });

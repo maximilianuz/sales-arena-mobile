@@ -133,10 +133,14 @@ export async function generateAIScenario(config, stages = [], language = 'es') {
     realProduct
   });
 
-  // 2800 tokens de salida acomoda todos los campos sin acercarse al límite de Groq.
-  const scenario = await makeProxyCall(fullPrompt, 2, 2800);
+  // 3000 tokens de salida acomoda todos los campos (incl. rootCauses) sin acercarse al límite.
+  const scenario = await makeProxyCall(fullPrompt, 2, 3000);
   if (scenario && typeof scenario === 'object') {
     scenario.personality = personality.id;
+    // Dificultad/temperatura elegidas: el scoring (backend compartido) escala la
+    // recompensa según esto (espejo de la web).
+    scenario.level = config.level || null;
+    scenario.leadTemperature = config.leadTemperature || null;
     if (realProduct) {
       scenario.productToSell = `${realProduct.name} — ${realProduct.description} (USD ${realProduct.price})`;
       const p = parseInt(realProduct.price, 10);
