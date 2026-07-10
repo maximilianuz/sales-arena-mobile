@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Shuffle, Copy, BookOpen, Trophy, Target } from 'lucide-react-native';
@@ -17,6 +17,11 @@ export default function LobbyScreen() {
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
   const [roomId, setRoomId] = useState('');
+
+  // Al volver del room, el lobby sigue montado en el stack y conservaba la sala
+  // cargada. Cada vez que esta pantalla recupera el foco, limpiamos el ID de sala
+  // para que NO quede precargada.
+  useFocusEffect(useCallback(() => { setRoomId(''); }, []));
 
   const roles = [
     { id: 'Facilitador', label: t('lobby.roles.Facilitador', 'Facilitador'), desc: t('lobby.roles.FacilitadorDesc', 'Controla la IA') },

@@ -35,7 +35,7 @@ async function ensureAudioMode() {
 
 // Habla el turno del lead con la emoción emitida por la IA.
 // Devuelve una promesa que resuelve al terminar la reproducción.
-export async function speak(text, { personalityId, language = 'es', emotion = 'neutral', gender = 'male' } = {}) {
+export async function speak(text, { personalityId, language = 'es', emotion = 'neutral', gender = 'male', seed = '' } = {}) {
   const uid = auth.currentUser?.uid;
   if (!text || !uid) return;
   const session = ++speakSession;
@@ -47,7 +47,8 @@ export async function speak(text, { personalityId, language = 'es', emotion = 'n
     const res = await fetch(`${API_BASE}/api/tts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid, text, personalityId, language, emotion, gender })
+      // `seed` (nombre del lead) → mismo timbre toda la llamada; la emoción varía el tono.
+      body: JSON.stringify({ uid, text, personalityId, language, emotion, gender, seed })
     });
     const data = await res.json();
     if (!res.ok || data.fallback || !data.audio) return; // silencio elegante

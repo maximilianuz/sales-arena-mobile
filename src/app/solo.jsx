@@ -106,7 +106,7 @@ export default function SoloScreen() {
         setPhase('ended');
       }
       // Voz del lead con la emoción del turno (Fish Audio via backend; silencioso si falla).
-      speak(turn.reply, { personalityId: scenario?.personality, language: i18n.language, emotion: turn.emotion, gender: inferGender(scenario?.demographics?.name || '') });
+      speak(turn.reply, { personalityId: scenario?.personality, language: i18n.language, emotion: turn.emotion, gender: inferGender(scenario?.demographics?.name || ''), seed: scenario?.demographics?.name || '' });
     } catch (e) {
       setError(e.message);
     } finally {
